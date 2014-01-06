@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-08-20 13:19+0200\n"
+"POT-Creation-Date: 2013-12-30 10:07+0100\n"
 "Language: de_DE\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -52,18 +52,22 @@ msgid "All inbox"
 msgstr "Alle Inbox"
 
 msgid "All incoming SMS"
-msgstr "Alle empfangenen SMS"
+msgstr "Alle SMS: Empfangene"
+
+msgid "All incoming messages"
+msgstr "Alle Nachrichten: Empfangene"
 
 msgid "All outgoing SMS"
-msgstr "Alle gesendeten SMS"
+msgstr "Alle SMS: Gensedete"
 
-#, fuzzy
+msgid "All outgoing messages"
+msgstr "Alle Nachrichten: Gesendete"
+
 msgid "Allow custom SMS footer"
-msgstr "SMS Fußzeile"
+msgstr "Erlaube benutzerdefinierte SMS Fußzeile"
 
-#, fuzzy
 msgid "Allow custom sender ID"
-msgstr "Standard Sender-ID"
+msgstr "Erlaube benutzerdefinierte Sender-ID"
 
 msgid "Always add plus sign"
 msgstr "Immer Plus-Zeichen hinzufügen"
@@ -79,6 +83,9 @@ msgstr "Applikationseinstellungen"
 
 msgid "Are you sure you want to delete outgoing SMS ?"
 msgstr "Gesendete SMS wirklich löschen?"
+
+msgid "Are you sure you want to delete these items ?"
+msgstr "Diese Elemtene wirklich löschen?"
 
 msgid "Are you sure you want to delete this SMS ?"
 msgstr "Diese SMS wirklich löschen?"
@@ -99,7 +106,7 @@ msgid "Back"
 msgstr "zurück"
 
 msgid "Changelog"
-msgstr "Changelog"
+msgstr "Änderungen"
 
 msgid "City"
 msgstr "Stadt"
@@ -120,7 +127,7 @@ msgid "Credit"
 msgstr "Guthaben"
 
 msgid "Currently logged in user is immune to deletion"
-msgstr "Aktuell eingeloggter Benutzer darf nicht gelöscht werden"
+msgstr "Aktuell eingeloggter Benutzer kann nicht gelöscht werden"
 
 msgid "Date time"
 msgstr "Datum Uhrzeit"
@@ -129,7 +136,7 @@ msgid "Default"
 msgstr "Standard"
 
 msgid "Default SMS rate"
-msgstr "Standard SMS Rate"
+msgstr "Standard SMS Gebühr"
 
 msgid "Default credit for user"
 msgstr "Standard Guthaben für Benutzer"
@@ -155,9 +162,8 @@ msgstr "Nachrichten-Vorlage löschen"
 msgid "Delete selection"
 msgstr "Auswahl löschen"
 
-#, fuzzy
 msgid "Delete user"
-msgstr "Löschen"
+msgstr "Benutzer löschen"
 
 msgid "Delivered"
 msgstr "Übermittelt"
@@ -168,9 +174,8 @@ msgstr "Ändern"
 msgid "Edit message template"
 msgstr "Nachrichten-Vorlage ändern"
 
-#, fuzzy
 msgid "Effective SMS sender ID"
-msgstr "SMS Sender-ID"
+msgstr "Effektive SMS Sender-ID"
 
 msgid "Eg: +0700 for Jakarta/Bangkok timezone"
 msgstr "Bsp.: +0100 für Berlin"
@@ -179,7 +184,7 @@ msgid "Email"
 msgstr "Email"
 
 msgid "Email is already in use by other username"
-msgstr "Email ist bereits für anderen user hinterlegt"
+msgstr "Email ist bereits von anderem User benutzt"
 
 msgid "Enable forgot password"
 msgstr "Aktiviere Passwort zurücksetzen"
@@ -188,7 +193,7 @@ msgid "Enable public registration"
 msgstr "Aktiviere öffentliche Registrierung"
 
 msgid "Enable webservices"
-msgstr "Aktiviere Webservice"
+msgstr "Aktiviere Webservices"
 
 msgid "Export"
 msgstr "Export"
@@ -227,16 +232,16 @@ msgid "Fail to sent SMS"
 msgstr "Fehler beim Senden der SMS"
 
 msgid "Failed"
-msgstr "Fehler"
+msgstr "Gescheitert"
 
 msgid "Feature"
 msgstr "Erweiterungen"
 
 msgid "Fill to change password for username"
-msgstr "Ausfüllen zum Ändern des Passworts für username"
+msgstr "Ausfüllen zum Ändern des Passworts für Benutzer"
 
 msgid "Fill to update"
-msgstr "Ausfüllen zum aktualisieren"
+msgstr "Ausfüllen zum Aktualisieren"
 
 msgid "Flash message"
 msgstr "Flash-Nachricht"
@@ -244,9 +249,8 @@ msgstr "Flash-Nachricht"
 msgid "Footer"
 msgstr "Fußzeile"
 
-#, fuzzy
 msgid "Forward"
-msgstr "weiterleiten"
+msgstr "Weiterleiten"
 
 msgid "Forward PV to email"
 msgstr "Leite PV als Email weiter"
@@ -264,13 +268,22 @@ msgid "Forward SMS to email"
 msgstr "Leite SMS als Email weiter"
 
 msgid "Forward SMS to inbox"
-msgstr "Leite SMS an inbox weiter"
+msgstr "Leite SMS an Inbox weiter"
 
 msgid "Forward SMS to mobile"
 msgstr "Leite SMS an Mobiltelefon weiter"
 
 msgid "Forward from"
 msgstr "Weiterleiten von"
+
+msgid "Forward message to email"
+msgstr "Leite Nachricht als Email weiter"
+
+msgid "Forward message to inbox"
+msgstr "Leite Nachricht an Inbox weiter"
+
+msgid "Forward message to mobile"
+msgstr "Leite Nachricht an Mobiltelefon weiter"
 
 msgid "Forwarded email footer"
 msgstr "Fußzeile in weitergeleiteter Email"
@@ -291,17 +304,16 @@ msgid "Group"
 msgstr "Gruppe"
 
 msgid "Group code"
-msgstr "Gruppenkuerzel"
+msgstr "Gruppenkürzel"
 
 msgid "HTTP API"
 msgstr "HTTP API"
 
 msgid "Home"
-msgstr "Start"
+msgstr "Startseite"
 
-#, fuzzy
 msgid "Import"
-msgstr "Export"
+msgstr "Import"
 
 msgid "Inbox"
 msgstr "Inbox"
@@ -309,8 +321,11 @@ msgstr "Inbox"
 msgid "Incoming SMS"
 msgstr "Empfangene SMS"
 
+msgid "Incoming messages"
+msgstr "Empfangene Nachricht"
+
 msgid "Installation Guide"
-msgstr "Installationsanlaeitung"
+msgstr "Installationsanleitung"
 
 msgid "International format"
 msgstr "Internationales Format"
@@ -322,7 +337,7 @@ msgid "Keyword"
 msgstr "Schlagwort"
 
 msgid "Last update"
-msgstr "Letztes Upate"
+msgstr "Letztes Update"
 
 msgid "License"
 msgstr "Lizenz"
@@ -334,31 +349,31 @@ msgid "Login information"
 msgstr "Login Information"
 
 msgid "Logout"
-msgstr "Logout"
+msgstr "Abmelden"
 
 msgid "Main configuration"
 msgstr "Hauptkonfiguration"
 
 msgid "Main configuration changes has been saved"
-msgstr "Änderungen der Hauptkonfiguration wurden gepseichert"
+msgstr "Änderungen der Hauptkonfiguration wurden gespeichert"
 
 msgid "Main website URL"
-msgstr ""
+msgstr "Haupt-URL"
 
 msgid "Main website name"
-msgstr ""
+msgstr "Website-Name"
 
 msgid "Manage"
 msgstr "Verwalten"
 
 msgid "Manage user"
-msgstr "Benutzerverwaltung"
+msgstr "Benutzer verwalten"
 
 msgid "Max. 16 numeric or 11 alphanumeric characters"
 msgstr "Max. 16 numerische oder 11 alphanumerische Zeichen"
 
 msgid "Max. 20 digits mobile phone number"
-msgstr ""
+msgstr "Max. 20 Zeichen lange Mobilfunknummer"
 
 msgid "Max. 30 alphanumeric characters"
 msgstr "Max. 30 alphanumerische Zeichen"
@@ -368,6 +383,9 @@ msgstr "Maximale Anzahl SMS"
 
 msgid "Message"
 msgstr "Nachricht"
+
+msgid "Message from"
+msgstr "Nachricht von"
 
 msgid "Message template"
 msgstr "Nachrichten-Vorlage"
@@ -391,10 +409,13 @@ msgid "Mobile"
 msgstr "Mobil"
 
 msgid "Mobile is already in use by other username"
-msgstr "Mobilrufnummer ist bereits von anderen Benutzer verwendet"
+msgstr "Mobilrufnummer ist bereits von anderem Benutzer verwendet"
 
 msgid "Mobile number"
 msgstr "Mobilrufnummer"
+
+msgid "Move to"
+msgstr "Verschieben nach"
 
 msgid "My Account"
 msgstr "Mein Account"
@@ -417,11 +438,17 @@ msgstr "Einfacher Benutzer"
 msgid "Normal user"
 msgstr "Einfacher Benutzer"
 
+msgid "Options"
+msgstr "Optionen"
+
 msgid "Or"
-msgstr "Qr"
+msgstr "Oder"
 
 msgid "Outgoing SMS"
-msgstr "Gesendete SMS"
+msgstr "SMS: Gesendete"
+
+msgid "Outgoing messages"
+msgstr "Nachrichten: Gesendete"
 
 msgid "Password"
 msgstr "Passwort"
@@ -430,7 +457,7 @@ msgid "Password does not match"
 msgstr "Passwörter stimmen nicht überein"
 
 msgid "Password has been sent to your email"
-msgstr "Passwort wurde per Mail verschickt"
+msgstr "Passwort wurde per Email verschickt"
 
 msgid "Password recovery"
 msgstr "Passwort-Rücksetzung"
@@ -439,29 +466,26 @@ msgid "Password should be at least 4 characters"
 msgstr "Passwort muss aus mind. 4 Zeichen bestehen"
 
 msgid "Pending"
-msgstr "bevorstehend"
+msgstr "Bevorstehend"
 
 msgid "Personal information"
 msgstr "Persönliche Information"
 
 msgid "Phone number(s)"
-msgstr "Rufnummern"
+msgstr "Rufnummer(n)"
 
 msgid "Phonebook"
 msgstr "Telefonbuch"
 
-#, fuzzy
 msgid "Phonebook groups"
-msgstr "Telefonbuch"
+msgstr "Telefonbuch-Gruppen"
 
-#, fuzzy
 msgid "Phonebook numbers"
-msgstr "Rufnummern"
+msgstr "Telefonbuch-Rufnummern"
 
 msgid "Pick Date & Time"
 msgstr "Verwende Datum und Zeit"
 
-#, fuzzy
 msgid "Pick date & time"
 msgstr "Verwende Datum und Zeit"
 
@@ -490,7 +514,7 @@ msgid "Public registration disabled"
 msgstr "Öffentliche Registrierung deaktiviert"
 
 msgid "Publish"
-msgstr ""
+msgstr "Veröffentlichen"
 
 msgid "Re-Type Password"
 msgstr "Passwort erneut eingeben"
@@ -498,9 +522,8 @@ msgstr "Passwort erneut eingeben"
 msgid "Re-type password"
 msgstr "Passwort erneut eingeben"
 
-#, fuzzy
 msgid "Received"
-msgstr "Empfänger"
+msgstr "Empfangen"
 
 msgid "Receiver"
 msgstr "Empfänger"
@@ -509,7 +532,7 @@ msgid "Recover password disabled"
 msgstr "Passwort-Rücksetzung deaktiviert"
 
 msgid "Registered"
-msgstr "Regstriert"
+msgstr "Registriert"
 
 msgid "Replace prefix 0 or padding local numbers"
 msgstr "Ersetze führende 0 oder Auffüllen lokaler Nummern"
@@ -518,7 +541,10 @@ msgid "Reply"
 msgstr "Antwort"
 
 msgid "Resend"
-msgstr ""
+msgstr "Erneut senden"
+
+msgid "SMS"
+msgstr "SMS"
 
 msgid "SMS character"
 msgstr "SMS Zeichen"
@@ -526,16 +552,17 @@ msgstr "SMS Zeichen"
 msgid "SMS footer"
 msgstr "SMS Fußzeile"
 
-#, fuzzy
 msgid "SMS from"
-msgstr "SMS Fußzeile"
+msgstr "SMS von"
 
 msgid "SMS sender ID"
-msgstr "SMS Sender-ID"
+msgstr "SMS Absender-ID"
 
-#, fuzzy
 msgid "SMS to email"
 msgstr "Leite SMS als Email weiter"
+
+msgid "Sandbox"
+msgstr "Sandbox"
 
 msgid "Save"
 msgstr "Speichern"
@@ -543,8 +570,14 @@ msgstr "Speichern"
 msgid "Save template"
 msgstr "Vorlage speichern"
 
+msgid "Schedule"
+msgstr "Planen"
+
 msgid "Search"
 msgstr "Suche"
+
+msgid "Select"
+msgstr "Auswahl"
 
 msgid "Select action"
 msgstr "Auswahl Aktion"
@@ -552,11 +585,17 @@ msgstr "Auswahl Aktion"
 msgid "Selected incoming SMS has been deleted"
 msgstr "Ausgewählte empfangene SMS wurde gelöscht"
 
+msgid "Selected incoming message has been deleted"
+msgstr "Ausgewählte empfangene Nachricht wurde gelöscht"
+
 msgid "Selected message template has been deleted"
 msgstr "Ausgewählte Nachrichten-Vorlage wurde gelöscht"
 
 msgid "Selected outgoing SMS has been deleted"
 msgstr "Ausgewählte gesendete SMS wurde gelöscht"
+
+msgid "Selected outgoing message has been deleted"
+msgstr "Ausgewählte gesendete Nachricht wurde gelöscht"
 
 msgid "Send"
 msgstr "Absenden"
@@ -572,6 +611,9 @@ msgstr "Sende als Unicode-Nachricht"
 
 msgid "Send broadcast SMS"
 msgstr "Sende Sammel-SMS"
+
+msgid "Send message"
+msgstr "Sende SMS"
 
 msgid "Send to"
 msgstr "Sende an"
@@ -590,6 +632,9 @@ msgstr "Staat oder Region"
 
 msgid "Status"
 msgstr "Status"
+
+msgid "This field is required"
+msgstr "Dieses Feld wird benötigt"
 
 msgid "Time"
 msgstr "Zeit"
@@ -610,7 +655,7 @@ msgid "Unicode message"
 msgstr "Unicode Nachricht"
 
 msgid "Unpublish"
-msgstr ""
+msgstr "Veröffentlichung widerrufen"
 
 msgid "Use"
 msgstr "Benutze"
@@ -624,21 +669,17 @@ msgstr "Benutzer"
 msgid "User already exists"
 msgstr "Benutzer existiert bereits"
 
-#, fuzzy
 msgid "User configuration"
-msgstr "Hauptkonfiguration"
+msgstr "Benutzerkonfiguration"
 
-#, fuzzy
 msgid "User configuration has been saved"
-msgstr "Änderungen der Hauptkonfiguration wurden gepseichert"
+msgstr "Benutzerkonfiguration wurden gespeichert"
 
-#, fuzzy
 msgid "User configuration has been saved and password updated"
-msgstr "Einstellungen wurden gespeichert und das Passwort aktualisiert"
+msgstr "BenutzerEinstellungen wurden gespeichert und das Passwort aktualisiert"
 
-#, fuzzy
 msgid "User configuration has been saved and webservices token updated"
-msgstr "Einstellungen wurden gespeichert und der Webservice-Token aktualisiert"
+msgstr "Benutzereinstellungen wurden gespeichert und der Webservice-Token aktualisiert"
 
 msgid "User does not exists"
 msgstr "Benutzer existiert nicht"
@@ -653,14 +694,13 @@ msgid "User is already exists"
 msgstr "Benutzer existiert bereits"
 
 msgid "User is immune to deletion"
-msgstr "Benutzer dürfen nicht gelöscht werden"
+msgstr "Benutzer darf nicht gelöscht werden"
 
 msgid "User level"
 msgstr "Benutzer Level"
 
-#, fuzzy
 msgid "User preference"
-msgstr "Einstellungen"
+msgstr "Benutzereinstellungen"
 
 msgid "Username"
 msgstr "Benutzername"
@@ -669,9 +709,7 @@ msgid "Username should be at least 3 characters"
 msgstr "Benutzername muss mindestens 3 Zeichen lang sein"
 
 msgid "Valid characters for username are alphabets, numbers, dot or dash"
-msgstr ""
-"Zulässige Zeichen für den Benutzernamen sind Buchstaben, Zahlen, Punkt oder "
-"Gedankenstrich"
+msgstr "Zulässige Zeichen für den Benutzernamen sind Buchstaben, Zahlen, Punkt oder Gedankenstrich"
 
 msgid "View"
 msgstr "Anzeigen"
@@ -703,9 +741,8 @@ msgstr "Webservices IP-Bereich"
 msgid "Webservices token"
 msgstr "Webservices Token"
 
-#, fuzzy
 msgid "Webservices username"
-msgstr "Webservices Token"
+msgstr "Webservices Benutzername"
 
 msgid "Website email"
 msgstr "Webseiten Email"
@@ -717,7 +754,7 @@ msgid "Welcome to playSMS"
 msgstr "Willkommen zu playSMS"
 
 msgid "You have been logged out"
-msgstr "Sie wurden ausgeloggt"
+msgstr "Sie wurden abgemeldet"
 
 msgid "You have no access to this page"
 msgstr "Sie haben keinen Zugriff zu dieser Seite"
@@ -729,13 +766,10 @@ msgid "You must fill all fields"
 msgstr "Sie müssen alle Felder ausfüllen"
 
 msgid "You must select receiver and your message should not be empty"
-msgstr ""
-"Sie müssen den Empfänger auswählen und die Nachricht darf nicht leer sein"
+msgstr "Sie müssen den Empfänger auswählen und die Nachricht darf nicht leer sein"
 
 msgid "You must select receiver group and your message should not be empty"
-msgstr ""
-"Sie müssen die Empfänger-Gruppe auswählen und die Nachricht darf nicht leer "
-"sein"
+msgstr "Sie müssen die Empfänger-Gruppe auswählen und die Nachricht darf nicht leer sein"
 
 msgid "Your SMS has been delivered to queue"
 msgstr "Ihre SMS wurde an die Zustell-Queue übermittelt"
@@ -746,17 +780,26 @@ msgstr "Das Email-Format ist ungültig"
 msgid "Your message"
 msgstr "Ihre Nachricht"
 
+msgid "Your message has been delivered to queue"
+msgstr "Ihre Nachricht wurde an die Zustell-Queue übermittelt"
+
 msgid "Your mobile format is invalid"
 msgstr "Ihr Mobilrufnummern-Format ist ungültig"
 
 msgid "Zipcode"
 msgstr "PLZ"
 
+msgid "chars"
+msgstr "Zeichen"
+
 msgid "email"
 msgstr "Email"
 
 msgid "failed"
 msgstr "gescheitert"
+
+msgid "format YYYY-MM-DD hh:mm"
+msgstr "Format JJJJ-MM-TT hh:mm"
 
 msgid "forward"
 msgstr "weiterleiten"
@@ -782,6 +825,9 @@ msgstr "nicht gesetzt"
 msgid "number"
 msgstr "Nummer"
 
+msgid "prefix with # for groups and @ for users"
+msgstr "Präfix # für Gruppen und @ für Benutzer"
+
 msgid "queued"
 msgstr "eingereiht"
 
@@ -789,7 +835,7 @@ msgid "reply"
 msgstr "antworten"
 
 msgid "resend"
-msgstr ""
+msgstr "erneut senden"
 
 msgid "row"
 msgstr "Zeile"
@@ -805,6 +851,9 @@ msgstr "unerledigt"
 
 msgid "username"
 msgstr "Benutzername"
+
+msgid "version"
+msgstr "Version"
 
 msgid "yes"
 msgstr "ja"

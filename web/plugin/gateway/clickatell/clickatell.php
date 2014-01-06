@@ -1,10 +1,10 @@
 <?php
 defined ( '_SECURE_' ) or die ( 'Forbidden' );
-if (! isadmin ()) {
-	forcenoaccess ();
+if (! auth_isadmin ()) {
+	auth_block ();
 };
 
-$gw = gateway_get ();
+$gw = core_gateway_get ();
 
 if ($gw == $clickatell_param ['name']) {
 	$status_active = "<span class=status_active />";
@@ -24,6 +24,7 @@ switch ($op) {
 		$content .= "
 			<h2>" . _ ( 'Manage clickatell' ) . "</h2>
 			<form action=index.php?app=menu&inc=gateway_clickatell&op=manage_save method=post>
+			"._CSRF_FORM_."
 			<table class=playsms-table>
 			<tr>
 				<td class=label-sizer>" . _ ( 'Gateway name' ) . "</td><td>clickatell $status_active</td>
@@ -58,6 +59,7 @@ switch ($op) {
 			- " . _ ( 'Your callback URL should be accessible from Clickatell' ) . "<br />
 			- " . _ ( 'Clickatell will push DLR and incoming SMS to your callback URL' ) . "<br />
 			- " . _ ( 'Clickatell is a bulk SMS provider' ) . ", <a href=\"https://www.clickatell.com/register/\" target=\"_blank\">" . _ ( 'free credits are available for testing purposes' ) . "</a><br />";
+		$content .= _back('index.php?app=menu&inc=tools_gatewaymanager&op=gatewaymanager_list');
 		echo $content;
 		break;
 	case "manage_save" :

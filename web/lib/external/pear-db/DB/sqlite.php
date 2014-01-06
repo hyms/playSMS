@@ -175,7 +175,7 @@ class DB_sqlite extends DB_common
      *
      * Example of connecting to a database in read-only mode:
      * <code>
-     * require_once 'DB.php';
+     * require_once LIBS.'DB.php';
      * 
      * $dsn = 'sqlite:///path/and/name/of/db/file?mode=0400';
      * $options = array(
@@ -959,5 +959,3 @@ class DB_sqlite extends DB_common
  * c-basic-offset: 4
  * End:
  */
-
-?>

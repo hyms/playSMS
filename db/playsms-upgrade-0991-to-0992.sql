@@ -38,7 +38,7 @@ CREATE TABLE `playsms_tblSMSOutgoing_queue` (
   `gpid` int(11) NOT NULL DEFAULT '0',
   `sender_id` varchar(100) NOT NULL DEFAULT '',
   `footer` varchar(30) NOT NULL DEFAULT '',
-  `message` text NOT NULL DEFAULT '',
+  `message` text NOT NULL,
   `sms_type` varchar(100) NOT NULL DEFAULT '',
   `unicode` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
@@ -59,7 +59,7 @@ CREATE TABLE `playsms_tblRecvSMS` (
   `flag_processed` tinyint(4) NOT NULL DEFAULT '0',
   `sms_datetime` varchar(20) NOT NULL DEFAULT '0000-00-00 00:00:00',
   `sms_sender` varchar(20) NOT NULL DEFAULT '',
-  `message` text NOT NULL DEFAULT '',
+  `message` text NOT NULL,
   `sms_receiver` varchar(20) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -155,7 +155,17 @@ CREATE TABLE IF NOT EXISTS `playsms_featureSmssysnc` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
 
--- trunk
+-- beta 5
 
 ALTER TABLE  `playsms_tblConfig_main` ADD  `cfg_main_website_name` varchar(250) NOT NULL DEFAULT '';
 ALTER TABLE  `playsms_tblConfig_main` ADD  `cfg_main_website_url` varchar(250) NOT NULL DEFAULT '';
+
+
+-- beta 6
+
+ALTER TABLE  `playsms_tblRegistry`
+CHANGE  `group`  `registry_group` VARCHAR( 250 ) NOT NULL DEFAULT  '',
+CHANGE  `family`  `registry_family` VARCHAR( 250 ) NOT NULL DEFAULT  '',
+CHANGE  `key`  `registry_key` VARCHAR( 250 ) NOT NULL DEFAULT  '',
+CHANGE  `value`  `registry_value` VARCHAR( 250 ) NOT NULL DEFAULT  '' ;
+

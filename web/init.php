@@ -1,4 +1,22 @@
 <?php
+
+/**
+ * This file is part of playSMS.
+ *
+ * playSMS is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * playSMS is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with playSMS.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 include "config.php";
 
 // security, checked by essential files under subdir
@@ -6,6 +24,12 @@ define('_SECURE_', 1);
 
 // generate a unique Process ID
 define('_PID_', uniqid('PID'));
+
+// get PHP version
+if (!defined('_PHP_VER_')) {
+    $version = explode('.', PHP_VERSION);
+    define('_PHP_VER_', ($version[0] * 10000 + $version[1] * 100 + $version[2]));
+}
 
 $core_config['daemon_process'] = $DAEMON_PROCESS;
 
@@ -27,6 +51,10 @@ define('_DB_PORT_', $core_config['db']['port']);
 define('_DB_USER_', $core_config['db']['user']);
 define('_DB_PASS_', $core_config['db']['pass']);
 define('_DB_NAME_', $core_config['db']['name']);
+
+// defines DSN
+define('_DB_DSN_', $core_config['db']['dsn']);
+define('_DB_OPT_', $core_config['db']['options']);
 
 $core_config['db']['pref'] = 'playsms';
 define('_DB_PREF_', $core_config['db']['pref']);
@@ -104,6 +132,40 @@ if (! get_magic_quotes_gpc()) {
 empty($_REQUEST);
 $_REQUEST = array_merge($_GET, $_POST);
 
+// global variables
+$app = core_query_sanitize($_REQUEST['app']);
+$inc = core_query_sanitize($_REQUEST['inc']);
+$op = core_query_sanitize($_REQUEST['op']);
+$route = core_query_sanitize($_REQUEST['route']);
+$page = core_query_sanitize($_REQUEST['page']);
+$nav = core_query_sanitize($_REQUEST['nav']);
+
+// global defines
+define('_APP_', $app);
+define('_INC_', $inc);
+define('_OP_', $op);
+define('_ROUTE_', $route);
+define('_PAGE_', $page);
+define('_NAV_', $nav);
+
+// enable anti-CSRF for anything but webservices
+$c_app = ( $_GET['app'] ? strtolower($_GET['app']) : strtolower($_POST['app']) );
+if (! (($c_app == 'ws') || ($c_app == 'webservices'))) {
+	$csrf = array();
+	// print_r($_POST); print_r($_SESSION);
+	if ($_POST) {
+		if (! core_csrf_validate()) {
+			logger_print("WARNING: possible CSRF attack. sid:".$_SESSION['sid']." ip:".$_SERVER['REMOTE_ADDR'], 2, "init");
+			auth_block();
+		}
+	}
+	$csrf = core_csrf_set();
+	define('_CSRF_TOKEN_', $csrf['value']);
+	define('_CSRF_FORM_', $csrf['form']);
+	unset($csrf);
+}
+unset($c_app);
+
 // plugins category
 $plugins_category = array('tools','feature','gateway','themes','language');
 $core_config['plugins_category'] = $plugins_category;
@@ -148,7 +210,7 @@ if (isset($db_row)) {
 $sms_max_count = ( (int)$sms_max_count < 1 ? 1 : (int)$sms_max_count );
 $core_config['main']['cfg_sms_max_count'] = $sms_max_count;
 $core_config['main']['per_sms_length'] = ( $core_config['main']['cfg_sms_max_count'] > 1 ? 153 : 160 );
-$core_config['main']['per_sms_length_unicode'] = ( $core_config['main']['cfg_sms_max_count'] > 1 ? 63 : 70 );
+$core_config['main']['per_sms_length_unicode'] = ( $core_config['main']['cfg_sms_max_count'] > 1 ? 67 : 70 );
 $core_config['main']['max_sms_length'] = $core_config['main']['cfg_sms_max_count'] * $core_config['main']['per_sms_length'];
 $core_config['main']['max_sms_length_unicode'] = $core_config['main']['cfg_sms_max_count'] * $core_config['main']['per_sms_length_unicode'];
 
@@ -164,6 +226,8 @@ $fn1 = $apps_path['plug'].'/themes/'.$themes_module.'/config.php';
 $fn2 = $apps_path['plug'].'/themes/'.$themes_module.'/fn.php';
 if (file_exists($fn1) && file_exists($fn2)) {
 	$core_config['module']['themes'] = $themes_module;
+} else {
+	$core_config['module']['themes'] = 'default';
 }
 
 // verify selected language_module exists
@@ -171,9 +235,11 @@ $fn1 = $apps_path['plug'].'/language/'.$language_module.'/config.php';
 $fn2 = $apps_path['plug'].'/language/'.$language_module.'/fn.php';
 if (file_exists($fn1) && file_exists($fn2)) {
 	$core_config['module']['language'] = $language_module;
+} else {
+	$core_config['module']['language'] = 'en_US';
 }
 
-if (valid()) {
+if (auth_isvalid()) {
 	setuserlang($_SESSION['username']);
 } else {
 	setuserlang();
@@ -193,16 +259,12 @@ $date_now		= date($date_format, time());
 $time_now		= date($time_format, time());
 $datetime_now		= date($datetime_format, time());
 
-$core_config['datetime']['date_now'] 	= $date_now;
-$core_config['datetime']['time_now'] 	= $time_now;
-$core_config['datetime']['now'] 	= $datetime_now;
 $core_config['datetime']['format'] 	= $datetime_format;
 
 $datetime_format_stamp	= "YmdHis";
 $datetime_now_stamp	= date($datetime_format_stamp, time());
 
 $core_config['datetime']['now_stamp']		= $datetime_now_stamp;
-$core_config['datetime']['format_stamp']	= $datetime_format_stamp;
 
 if (! ($core_config['module']['gateway'] && $core_config['module']['themes'] && $core_config['module']['language'])) {
 	logger_print("Fail to load gateway, themes or language module", 1, "init");
@@ -212,5 +274,3 @@ if (! ($core_config['module']['gateway'] && $core_config['module']['themes'] && 
 
 // fixme anton - uncomment this if you want to know what are available in $core_config
 //print_r($core_config); die();
-
-?>

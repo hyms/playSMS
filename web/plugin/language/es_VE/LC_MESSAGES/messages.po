@@ -53,7 +53,15 @@ msgstr "Todos los entrantes"
 msgid "All incoming SMS"
 msgstr "Todos los SMS entrantes"
 
+#, fuzzy
+msgid "All incoming messages"
+msgstr "Todos los SMS entrantes"
+
 msgid "All outgoing SMS"
+msgstr "Todos los SMS salientes"
+
+#, fuzzy
+msgid "All outgoing messages"
 msgstr "Todos los SMS salientes"
 
 #, fuzzy
@@ -78,6 +86,10 @@ msgstr "Información del programa"
 
 msgid "Are you sure you want to delete outgoing SMS ?"
 msgstr "Está Ud. seguro de querer borrar el SMS saliente ?"
+
+#, fuzzy
+msgid "Are you sure you want to delete these items ?"
+msgstr "Está Ud. seguro de querer borrar este SMS"
 
 msgid "Are you sure you want to delete this SMS ?"
 msgstr "Está Ud. seguro de querer borrar este SMS"
@@ -279,6 +291,18 @@ msgstr "Firma del correo reenviado"
 msgid "Forward from"
 msgstr "Firma del correo reenviado"
 
+#, fuzzy
+msgid "Forward message to email"
+msgstr "Firma del correo reenviado"
+
+#, fuzzy
+msgid "Forward message to inbox"
+msgstr "Firma del correo reenviado"
+
+#, fuzzy
+msgid "Forward message to mobile"
+msgstr "Firma del correo reenviado"
+
 msgid "Forwarded email footer"
 msgstr "Firma del correo reenviado"
 
@@ -314,6 +338,10 @@ msgstr "Bandeja de Entrada"
 
 msgid "Incoming SMS"
 msgstr "SMS Entrantes"
+
+#, fuzzy
+msgid "Incoming messages"
+msgstr "Enviar en Unicode"
 
 msgid "Installation Guide"
 msgstr ""
@@ -375,6 +403,10 @@ msgstr ""
 msgid "Message"
 msgstr "Mensaje"
 
+#, fuzzy
+msgid "Message from"
+msgstr "Mensaje"
+
 msgid "Message template"
 msgstr "Plantilla de Mensaje"
 
@@ -402,6 +434,9 @@ msgstr "Correo electrónico ya en uso"
 msgid "Mobile number"
 msgstr "Numero(s) telefónico(s)"
 
+msgid "Move to"
+msgstr ""
+
 msgid "My Account"
 msgstr ""
 
@@ -423,10 +458,18 @@ msgstr "Usuario sin Privilegios"
 msgid "Normal user"
 msgstr "Usuario sin Privilegios"
 
+#, fuzzy
+msgid "Options"
+msgstr "Acción"
+
 msgid "Or"
 msgstr "O"
 
 msgid "Outgoing SMS"
+msgstr "SMS salientes"
+
+#, fuzzy
+msgid "Outgoing messages"
 msgstr "SMS salientes"
 
 msgid "Password"
@@ -528,6 +571,9 @@ msgstr "Responder"
 msgid "Resend"
 msgstr ""
 
+msgid "SMS"
+msgstr ""
+
 msgid "SMS character"
 msgstr "Caracteres del SMS"
 
@@ -545,14 +591,24 @@ msgstr "ID Remitente del SMS"
 msgid "SMS to email"
 msgstr "Firma del correo reenviado"
 
+msgid "Sandbox"
+msgstr ""
+
 msgid "Save"
 msgstr "Guardar"
 
 msgid "Save template"
 msgstr "Guardar Plantilla de Mensaje"
 
+msgid "Schedule"
+msgstr ""
+
 msgid "Search"
 msgstr ""
+
+#, fuzzy
+msgid "Select"
+msgstr "Seleccione una acción"
 
 msgid "Select action"
 msgstr "Seleccione una acción"
@@ -560,10 +616,18 @@ msgstr "Seleccione una acción"
 msgid "Selected incoming SMS has been deleted"
 msgstr "Los SMS entrantes seleccionados han sido eliminados"
 
+#, fuzzy
+msgid "Selected incoming message has been deleted"
+msgstr "Los SMS entrantes seleccionados han sido eliminados"
+
 msgid "Selected message template has been deleted"
 msgstr "La Plantilla de Mensaje seleccionada ha sido eliminada"
 
 msgid "Selected outgoing SMS has been deleted"
+msgstr "Los SMS Enviados seleccionados han sido eliminados"
+
+#, fuzzy
+msgid "Selected outgoing message has been deleted"
 msgstr "Los SMS Enviados seleccionados han sido eliminados"
 
 msgid "Send"
@@ -580,6 +644,10 @@ msgstr "Enviar en Unicode"
 
 msgid "Send broadcast SMS"
 msgstr "Enviar SMS Masivo"
+
+#, fuzzy
+msgid "Send message"
+msgstr "Enviar en Unicode"
 
 msgid "Send to"
 msgstr "Enviar a "
@@ -598,6 +666,9 @@ msgstr "Estado o provincia"
 
 msgid "Status"
 msgstr "Estado"
+
+msgid "This field is required"
+msgstr ""
 
 msgid "Time"
 msgstr "Hora"
@@ -757,17 +828,27 @@ msgstr ""
 msgid "Your message"
 msgstr "Su mensaje"
 
+#, fuzzy
+msgid "Your message has been delivered to queue"
+msgstr "Su mensaje ha sido enviado a la cola de procesamiento"
+
 msgid "Your mobile format is invalid"
 msgstr ""
 
 msgid "Zipcode"
 msgstr "Código postal"
 
+msgid "chars"
+msgstr ""
+
 msgid "email"
 msgstr "Correo electrónico"
 
 msgid "failed"
 msgstr "falló"
+
+msgid "format YYYY-MM-DD hh:mm"
+msgstr ""
 
 #, fuzzy
 msgid "forward"
@@ -794,6 +875,9 @@ msgstr "No configurado"
 msgid "number"
 msgstr "número"
 
+msgid "prefix with # for groups and @ for users"
+msgstr ""
+
 msgid "queued"
 msgstr ""
 
@@ -818,6 +902,9 @@ msgstr "No Procesado"
 
 msgid "username"
 msgstr "usuario"
+
+msgid "version"
+msgstr ""
 
 msgid "yes"
 msgstr ""

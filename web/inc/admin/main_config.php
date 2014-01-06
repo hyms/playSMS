@@ -1,6 +1,24 @@
 <?php
+
+/**
+ * This file is part of playSMS.
+ *
+ * playSMS is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * playSMS is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with playSMS.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 defined('_SECURE_') or die('Forbidden');
-if(!isadmin()){forcenoaccess();};
+if(!auth_isadmin()){auth_block();};
 
 switch ($op) {
 	case "main_config":
@@ -37,7 +55,7 @@ switch ($op) {
 		// get gateway options
 		for ($i=0;$i<count($core_config['gatewaylist']);$i++) {
 			$gateway = $core_config['gatewaylist'][$i];
-			$gw = gateway_get();
+			$gw = core_gateway_get();
 			if ($gateway == $gw) $selected = "selected";
 			$option_gateway_module .= "<option value=\"$gateway\" $selected>$gateway</option>";
 			$selected = "";
@@ -53,7 +71,7 @@ switch ($op) {
 		$lang_list = '';
 		for ($i=0;$i<count($core_config['languagelist']);$i++) {
 			$language = $core_config['languagelist'][$i];
-			$c_language_title = $core_config['plugins']['language'][$language]['title'];
+			$c_language_title = $core_config['plugin'][$language]['title'];
 			if ($c_language_title) {
 				$lang_list[$c_language_title] = $language;
 			}
@@ -90,6 +108,7 @@ switch ($op) {
 			'Allow custom SMS footer' => _('Allow custom SMS footer'),
 			'Active gateway module' => _('Active gateway module'),
 			'Active themes' => _('Active themes'),
+			'Default language' => _('Default language'),
 			'Save' => _('Save'),
 			'HINT_TIMEZONE' => _hint(_('Eg: +0700 for Jakarta/Bangkok timezone')),
 			'web_title' => $web_title,
@@ -157,5 +176,3 @@ switch ($op) {
 		exit();
 		break;
 }
-
-?>

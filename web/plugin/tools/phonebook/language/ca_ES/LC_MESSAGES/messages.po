@@ -14,23 +14,20 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 "X-Generator: Lokalize 1.4\n"
 
+msgid "Action"
+msgstr ""
+
 msgid "Add contact"
 msgstr "Afegir contacte"
 
 msgid "Add group"
 msgstr "Afegir grup"
 
-msgid "Code"
-msgstr "Codi"
-
 msgid "Contact has been added"
 msgstr "El contacte s'ha afegit"
 
 msgid "Contact has been edited"
 msgstr "El contacte s'ha editat"
-
-msgid "Contact is already exists"
-msgstr "El contacte ja existeix"
 
 msgid "Contacts has been imported"
 msgstr "Els contactes s'han importat"
@@ -47,8 +44,8 @@ msgstr "Editar grup"
 msgid "Email"
 msgstr "Email"
 
-msgid "Export"
-msgstr "Exportar"
+msgid "Fail to delete group"
+msgstr ""
 
 msgid "Fail to upload CSV file for phonebook"
 msgstr "Error al carregar el CSV per l'agenda"
@@ -86,6 +83,9 @@ msgstr "Confirmar importació"
 msgid "Mobile"
 msgstr "Mòbil"
 
+msgid "Move to"
+msgstr ""
+
 msgid "Name"
 msgstr "Nom"
 
@@ -104,13 +104,31 @@ msgstr "Si us plau trieu el fitxer CSV per les entrades de l'agenda"
 msgid "Save"
 msgstr "Guardar"
 
+msgid "Select"
+msgstr ""
+
 msgid "Selected contact has been deleted"
+msgstr "El contacte marcat s'ha esborrat"
+
+#, fuzzy
+msgid "Selected contact moved to new group"
 msgstr "El contacte marcat s'ha esborrat"
 
 msgid "Selected group has been deleted"
 msgstr "El grup marcat s'ha esborrat"
 
+msgid "Unable to delete group until the group is empty"
+msgstr ""
+
 msgid "You must fill all field"
+msgstr "Heu d'omplir tots els camps"
+
+#, fuzzy
+msgid "You must fill mandatory fields"
+msgstr "Heu d'omplir tots els camps"
+
+#, fuzzy
+msgid "You must fill required fields"
 msgstr "Heu d'omplir tots els camps"
 
 msgid "broadcast SMS from single SMS"
@@ -124,12 +142,6 @@ msgstr "format"
 
 msgid "group"
 msgstr "grup"
-
-msgid "mobile"
-msgstr "mòbil"
-
-msgid "name"
-msgstr "nom"
 
 msgid "please use uppercase and make it short"
 msgstr "si us plau feu servir majúscules i un nom curt"

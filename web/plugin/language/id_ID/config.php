@@ -1,3 +1,2 @@
 <?php
-$plugin['language']['id_ID']['title'] = 'Indonesian (Indonesia)';
-?>
+$core_config['plugin']['id_ID']['title'] = 'Indonesian (Indonesia)';

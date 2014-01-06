@@ -1,6 +1,24 @@
 <?php
+
+/**
+ * This file is part of playSMS.
+ *
+ * playSMS is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * playSMS is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with playSMS.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 defined('_SECURE_') or die('Forbidden');
-if(!isadmin()){forcenoaccess();};
+if(!auth_isadmin()){auth_block();};
 
 switch ($op) {
 	case "user_list":
@@ -30,8 +48,7 @@ switch ($op) {
 			<h3>" . _('Administrator') . "</h3>
 			<input type='button' value='" . _('Add user') . "' onClick=\"javascript:linkto('index.php?app=menu&inc=user_mgmnt&op=user_add')\" class=\"button\" />
 			<input type='button' value='" . _('View normal user') . "' onClick=\"javascript:linkto('index.php?app=menu&inc=user_mgmnt&op=user_list_tab2')\" class=\"button\" />
-			<p>".$search['form']."</p>
-			<div class=playsms-nav-form>".$nav['form']."</div>
+			<p>".$search['form']."</p>			
 			<div class=table-responsive>
 			<table class=playsms-table-list>
 			<thead><tr>
@@ -62,7 +79,7 @@ switch ($op) {
 		$content .= "
 			</tbody></table>
 			</div>
-			<div class=playsms-nav-form>".$nav['form']."</div>";
+			<div class=pull-right>".$nav['form']."</div>";
 		echo $content;
 		break;
 	case "user_list_tab2":
@@ -90,7 +107,6 @@ switch ($op) {
 			<input type='button' value='" . _('View administrator') . "' onClick=\"javascript:linkto('index.php?app=menu&inc=user_mgmnt&op=user_list_tab1')\" class=\"button\" />
 			<p>".$search['form']."</p>
 			<div class=table-responsive>
-			<div class=playsms-nav-form>".$nav['form']."</div>
 			<table class=playsms-table-list>
 			<thead><tr>
 				<th width='20%'>" . _('Registered') . "</th>
@@ -121,12 +137,12 @@ switch ($op) {
 		$content .= "
 			</tbody></table>
 			</div>
-			<div class=playsms-nav-form>".$nav['form']."</div>";
+			<div class=pull-right>".$nav['form']."</div>";
 		echo $content;
 		break;
 	case "user_del":
 		$up['username'] = $_REQUEST['uname'];
-		$del_uid = username2uid($up['username']);
+		$del_uid = user_username2uid($up['username']);
 		$_SESSION['error_string'] = _('Fail to delete user') . " ".$up['username'];
 		if (($del_uid > 1) && ($del_uid != $uid)) {
 			$condition = array('uid' => $del_uid);
@@ -153,7 +169,7 @@ switch ($op) {
 		$lang_list = '';
 		for ($i=0;$i<count($core_config['languagelist']);$i++) {
 			$language = $core_config['languagelist'][$i];
-			$c_language_title = $core_config['plugins']['language'][$language]['title'];
+			$c_language_title = $core_config['plugin'][$language]['title'];
 			if ($c_language_title) {
 				$lang_list[$c_language_title] = $language;
 			}
@@ -172,7 +188,8 @@ switch ($op) {
 		$content .= "
 		<h2>"._('Manage user')."</h2>
 		<h3>"._('Add user')."</h3>
-		<form action='index.php?app=menu&inc=user_mgmnt&op=user_add_yes' method='post'>
+		<form action='index.php?app=menu&inc=user_mgmnt&op=user_add_yes' method=POST>
+		"._CSRF_FORM_."
 		<table class=playsms-table>
 		<tbody>
 		<tr>
@@ -185,10 +202,10 @@ switch ($op) {
 			<td>" . _mandatory('Password') . "</td><td><input type='password' size=30 maxlength='30' name='add_password' value=\"$add_password\"></td>
 		</tr>
 		<tr>
-			<td>" . _mandatory('Full name') . "</td><td><input type='text' size=30 maxlength='30' name='add_name' value=\"$add_name\"></td>
+			<td>" . _mandatory('Full name') . "</td><td><input type='text' size=30 maxlength='100' name='add_name' value=\"$add_name\"></td>
 		</tr>
 		<tr>
-			<td>" . _mandatory('Email') . "</td><td><input type='text' size=30 maxlength='30' name='add_email' value=\"$add_email\"></td>
+			<td>" . _mandatory('Email') . "</td><td><input type='text' size=30 maxlength='250' name='add_email' value=\"$add_email\"></td>
 		</tr>
 		<tr>
 			<td>" . _('Mobile') . "</td><td><input type='text' size='16' maxlength='16' name='add_mobile' value=\"$add_mobile\"> " . _hint(_('Max. 16 numeric or 11 alphanumeric characters')) . "</td>
@@ -212,7 +229,7 @@ switch ($op) {
 		</table>
 		<input type='submit' class='button' value='" . _('Save') . "'>
 		</form>
-		<p>"._b('index.php?app=menu&inc=user_mgmnt&op=user_list');
+		<p>"._back('index.php?app=menu&inc=user_mgmnt&op=user_list');
 		echo $content;
 		break;
 	case "user_add_yes":
@@ -260,4 +277,3 @@ switch ($op) {
 		exit();
 		break;
 }
-?>

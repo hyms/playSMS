@@ -186,7 +186,7 @@ class DB_pgsql extends DB_common
      *
      * Example of connecting to a new link via a socket:
      * <code>
-     * require_once 'DB.php';
+     * require_once LIBS.'DB.php';
      * 
      * $dsn = 'pgsql://user:pass@unix(/tmp)/dbname?new_link=true';
      * $options = array(
@@ -1131,5 +1131,3 @@ class DB_pgsql extends DB_common
  * c-basic-offset: 4
  * End:
  */
-
-?>

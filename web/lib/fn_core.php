@@ -1,7 +1,25 @@
 <?php
+
+/**
+ * This file is part of playSMS.
+ *
+ * playSMS is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * playSMS is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with playSMS.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 defined('_SECURE_') or die('Forbidden');
 
-function q_sanitize($var) {
+function core_query_sanitize($var) {
 	$var = str_replace("/","",$var);
 	$var = str_replace("|","",$var);
 	$var = str_replace("\\","",$var);
@@ -19,29 +37,58 @@ function core_sanitize_path($var) {
 	return $var;
 }
 
-function x_hook($c_plugin, $c_function, $c_param=array()) {
+function core_hook($c_plugin, $c_function, $c_param=array()) {
 	$c_fn = $c_plugin.'_hook_'.$c_function;
 	if ($c_plugin && $c_function && function_exists($c_fn)) {
 		return call_user_func_array($c_fn, $c_param);
 	}
 }
 
-function playsmsd() {
+/**
+ * Call function that hook caller function
+ * @global array $core_config
+ * @param string $function_name
+ * @param array $arguments
+ * @return string
+ */
+function core_call_hook($function_name='', $arguments=array()) {
 	global $core_config;
-	// plugin tools
+	$ret = NULL;
+	if (! $function_name) {
+		if (_PHP_VER_ >= 50400) {
+			$f = debug_backtrace(0, 2); // PHP 5.4.0 and above
+		} else {
+			$f = debug_backtrace(); // PHP prior to 5.4.0
+		}
+		$function_name = $f[1]['function'];
+		$arguments = $f[1]['args'];
+	}
+	$found = FALSE;
 	for ($c=0;$c<count($core_config['toolslist']);$c++) {
-		x_hook($core_config['toolslist'][$c],'playsmsd');
+		if ($ret = core_hook($core_config['toolslist'][$c],$function_name,$arguments)) {
+			$found = TRUE;
+			break;
+		}
 	}
-	// plugin feature
-	for ($c=0;$c<count($core_config['featurelist']);$c++) {
-		x_hook($core_config['featurelist'][$c],'playsmsd');
+	if (! $found) {
+		for ($c=0;$c<count($core_config['featurelist']);$c++) {
+			if ($ret = core_hook($core_config['featurelist'][$c],$function_name,$arguments)) {
+				break;
+			}
+		}
 	}
-	// plugin gateway
-	$gw = gateway_get();
-	x_hook($gw,'playsmsd');
+	return $ret;
 }
 
-function str2hex($string)  {
+function playsmsd() {
+	global $core_config;
+	core_call_hook();
+	// plugin gateway
+	$gw = core_gateway_get();
+	core_hook($gw,'playsmsd');
+}
+
+function core_str2hex($string)  {
 	$hex = '';
 	$len = strlen($string);
 	for ($i = 0; $i < $len; $i++) {
@@ -86,7 +133,7 @@ function core_display_data($data) {
 }
 
 /*
- * Get current date and time
+ * Get current server date and time in GMT+0
  * @param $format
  *    output format 'date' for date only and 'time' for time only
  * @return
@@ -94,7 +141,9 @@ function core_display_data($data) {
  */
 function core_get_datetime($format='') {
 	global $core_config;
-	$ret = date($core_config['datetime']['format'], mktime());
+	$tz = core_get_timezone();
+	$dt = date($core_config['datetime']['format'], time());
+	$ret = core_adjust_datetime($dt, $tz);
 	if (strtolower(trim($format)) == 'date') {
 		$arr = explode(' ', $ret);
 		$ret = $arr[0];
@@ -121,10 +170,7 @@ function core_get_timezone($username='') {
 		$ret  = $list[0]['datetime_timezone'];
 	}
 	if (! $ret) {
-		$gw = gateway_get();
-		if (! ($ret = $core_config['plugin'][$gw]['datetime_timezone'])) {
-			$ret = $core_config['main']['cfg_datetime_timezone'];
-		}
+		$ret = $core_config['main']['cfg_datetime_timezone'];
 	}
 	return $ret;
 }
@@ -155,15 +201,12 @@ function core_datetime_offset($tz=0) {
  */
 function core_display_datetime($time, $tz=0) {
 	global $core_config;
-	$gw = gateway_get();
 	$time = trim($time);
 	$ret = $time;
 	if ($time && ($time != '0000-00-00 00:00:00')) {
 		if (! $tz) {
 			if (! ($tz = $core_config['user']['datetime_timezone'])) {
-				if (! ($tz = $core_config['plugin'][$gw]['datetime_timezone'])) {
-					$tz = $core_config['main']['cfg_datetime_timezone'];
-				}
+				$tz = $core_config['main']['cfg_datetime_timezone'];
 			}
 		}
 		$time = strtotime($time);
@@ -187,15 +230,12 @@ function core_display_datetime($time, $tz=0) {
  */
 function core_adjust_datetime($time, $tz=0) {
 	global $core_config;
-	$gw = gateway_get();
 	$time = trim($time);
 	$ret = $time;
 	if ($time && ($time != '0000-00-00 00:00:00')) {
 		if (! $tz) {
 			if (! ($tz = $core_config['user']['datetime_timezone'])) {
-				if (! ($tz = $core_config['plugin'][$gw]['datetime_timezone'])) {
-					$tz = $core_config['main']['cfg_datetime_timezone'];
-				}
+				$tz = $core_config['main']['cfg_datetime_timezone'];
 			}
 		}
 		$time = strtotime($time);
@@ -328,16 +368,59 @@ function core_net_match($network, $ip) {
 	}
 }
 
+
+/**
+ * Function: core_string_to_gsm()
+ * This function encodes an UTF-8 string into GSM 03.38
+ * Since UTF-8 is largely ASCII compatible, and GSM 03.38 is somewhat compatible, unnecessary conversions are removed.
+ * Specials chars such as € can be encoded by using an escape char \x1B in front of a backwards compatible (similar) char.
+ * UTF-8 chars which doesn't have a GSM 03.38 equivalent is replaced with a question mark.
+ * UTF-8 continuation bytes (\x08-\xBF) are replaced when encountered in their valid places, but
+ * any continuation bytes outside of a valid UTF-8 sequence is not processed.
+ * Based on https://github.com/onlinecity/php-smpp
+ *
+ * @param string $string
+ * @return string
+ */
+function core_string_to_gsm($string)
+{
+    $dict = array(
+        '@' => "\x00", '£' => "\x01", '$' => "\x02", '¥' => "\x03", 'è' => "\x04", 'é' => "\x05", 'ù' => "\x06", 'ì' => "\x07", 'ò' => "\x08", 'Ç' => "\x09", 'Ø' => "\x0B", 'ø' => "\x0C", 'Å' => "\x0E", 'å' => "\x0F",
+        'Δ' => "\x10", '_' => "\x11", 'Φ' => "\x12", 'Γ' => "\x13", 'Λ' => "\x14", 'Ω' => "\x15", 'Π' => "\x16", 'Ψ' => "\x17", 'Σ' => "\x18", 'Θ' => "\x19", 'Ξ' => "\x1A", 'Æ' => "\x1C", 'æ' => "\x1D", 'ß' => "\x1E", 'É' => "\x1F",
+        // all \x2? removed
+        // all \x3? removed
+        // all \x4? removed
+        'Ä' => "\x5B", 'Ö' => "\x5C", 'Ñ' => "\x5D", 'Ü' => "\x5E", '§' => "\x5F",
+        '¿' => "\x60",
+        'ä' => "\x7B", 'ö' => "\x7C", 'ñ' => "\x7D", 'ü' => "\x7E", 'à' => "\x7F",
+        '^' => "\x1B\x14", '{' => "\x1B\x28", '}' => "\x1B\x29", '\\' => "\x1B\x2F", '[' => "\x1B\x3C", '~' => "\x1B\x3D", ']' => "\x1B\x3E", '|' => "\x1B\x40", '€' => "\x1B\x65"
+    );
+    $converted = strtr($string, $dict);
+    return $converted;
+}
+
+/**
+ * Function: core_detect_unicode()
+ * This function returns an boolean indicating if string needs to be converted to utf
+ *  to be send as an SMS
+ * @param $text
+ *      string to check
+ * @return int unicode
+ */
 function core_detect_unicode($text) {
 	$unicode = 0;
-	if (function_exists('mb_detect_encoding')) {
-		$encoding = mb_detect_encoding($text, 'auto');
-		if ($encoding != 'ASCII') {
-			$unicode = 1;
-		}
-	} else {
-		$unicode = false;
-	}
+    $textgsm=core_string_to_gsm($text);
+
+    $match=preg_match_all('/([\\xC0-\\xDF].)|([\\xE0-\\xEF]..)|([\\xF0-\\xFF]...)/m',$textgsm,$matches);
+    if ($match!==FALSE) {
+        if ($match==0) {
+            $unicode = 0;
+        } else {
+            $unicode = 1;
+        }
+    } else {
+        //TODO broken regexp in this case, warn user
+    }
 	return $unicode;
 }
 
@@ -386,27 +469,199 @@ function core_object_to_array($data) {
 }
 
 /**
- * Read documents
+ * Convert array to CSV formatted string
+ * @param array $item
+ * @return string
  */
-function core_read_docs($base_dir, $doc) {
-	global $core_config;
-	$content = '';
-	$fn = $base_dir."/docs/".$doc;
-	if (file_exists($fn)) {
-		$fd = @fopen($fn, "r");
-		$fc = @fread($fd, filesize($fn));
-		@fclose($fd);
-		$fc = str_replace('{VERSION}', $core_config['version'], $fc);
-		$fi = pathinfo($fn);
-		if ($fi['extension'] == 'md') {
-			$content .= Parsedown::instance()->parse($fc);
-		} else if ($fi['extension'] == 'html') {
-			$content .= $fc;
-		} else {
-			$content .= '<pre>'.htmlentities($fc).'</pre>';
+function core_csv_format($item) {
+	if (is_array($item)) {
+		$ret = '';
+		for ($i=0;$i<count($item);$i++) {
+			foreach ($item[$i] as $key => $val) {
+				$val = str_replace('"', "'", $val);
+				$ret .= '"'.$val.'",';
+			}
+			$ret = substr($ret, 0, -1);
+			$ret .= "\n";
 		}
 	}
-	return $content;
+	return $ret;
 }
 
-?>
+/**
+ * Download content as a file
+ * @param string $content
+ * @param string $fn
+ * @param string $content_type
+ */
+function core_download($content, $fn='', $content_type='') {
+	$fn = ( $fn ? $fn : 'download.txt' );
+	$content_type = ( $content_type ? $content_type : 'text/plain' );
+	ob_end_clean();
+	header('Pragma: public');
+	header('Expires: 0');
+	header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+	header('Content-Type: '.$content_type);
+	header('Content-Disposition: attachment; filename='.$fn);
+	echo $content;
+	die();
+}
+
+/**
+ * Get active gateway plugin
+ * @global array $core_config
+ * @return string
+ */
+function core_gateway_get() {
+	global $core_config;
+	$ret = $core_config['module']['gateway'];
+	return $ret;
+}
+
+/**
+ * Get active language
+ * @global array $core_config
+ * @return string
+ */
+function core_lang_get() {
+	global $core_config;
+	$ret = $core_config['module']['language'];
+	return $ret;
+}
+
+/**
+ * Get active themes
+ * @global array $core_config
+ * @return string
+ */
+function core_themes_get() {
+	global $core_config;
+	$ret = $core_config['module']['themes'];
+	return $ret;
+}
+
+/**
+ * Get status of plugin, loaded or not
+ * @param integer $uid
+ * @param string $plugin_category
+ * @param string $plugin_name
+ * @return boolean
+ */
+function core_plugin_get_status($uid, $plugin_category, $plugin_name) {
+	$ret = FALSE;
+	// check config.php and fn.php
+	$plugin_category = core_sanitize_path($plugin_category);
+	$plugin_name = core_sanitize_path($plugin_name);
+	$fn_cnf = _APPS_PATH_PLUG_.'/'.$plugin_category.'/'.$plugin_name.'/config.php';
+	$fn_lib = _APPS_PATH_PLUG_.'/'.$plugin_category.'/'.$plugin_name.'/fn.php';
+	if (file_exists($fn_cnf) && $fn_lib) {
+		// check plugin_status registry
+		$status = registry_search($uid, $plugin_category, $plugin_name, 'enabled');
+		// $status = 1 for disabled
+		// $status = 2 for enabled
+		if ($status == 2) {
+			$ret = TRUE;
+		}
+	}
+	return $ret;
+}
+
+/**
+ * Set status of plugin
+ * @param integer $uid
+ * @param string $plugin_category
+ * @param string $plugin_name
+ * @param boolean $plugin_status
+ * @return boolean
+ */
+function core_plugin_set_status($uid, $plugin_category, $plugin_name, $plugin_status) {
+	$ret = FALSE;
+	$status = core_plugin_get_status($uid, $plugin_category, $plugin_name);
+	if ((($status==2) && $plugin_status) || ($status==1 && (! $plugin_status))) {
+		$ret = TRUE;
+	} else {
+		$plugin_status = ( $plugin_status ? 2 : 1 );
+		$items = array('enabled' => $plugin_status);
+		if (registry_update($uid, $plugin_category, $plugin_name, $items)) {
+			$ret = TRUE;
+		}
+	}
+	return $ret;
+}
+
+/**
+ * Set CSRF token value and form
+ * @return array array(value, form)
+ */
+function core_csrf_set() {
+	$ret = array();
+	$csrf_token = md5(_PID_.mktime());
+	if ($_SESSION['X-CSRF-Token'] = $csrf_token) {
+		$ret['value'] = $csrf_token;
+		$ret['form'] = '<input type="hidden" name="X-CSRF-Token" value="'.$csrf_token.'">';
+	}
+	return $ret;
+}
+
+/**
+ * Set CSRF token
+ * @return string
+ */
+function core_csrf_set_token() {
+	$csrf_token = md5(_PID_.mktime());
+	if ($_SESSION['X-CSRF-Token'] = $csrf_token) {
+		$ret = $csrf_token;
+	}
+	return $ret;
+}
+
+/**
+ * Get CSRF token value and form
+ * @return array array(value, form)
+ */
+function core_csrf_get() {
+	$ret = array();
+	if ($csrf_token = $_SESSION['X-CSRF-Token']) {
+		$ret['value'] = $csrf_token;
+		$ret['form'] = '<input type="hidden" name="X-CSRF-Token" value="'.$csrf_token.'">';
+	}
+	return $ret;
+}
+
+/**
+ * Get CSRF token
+ * @return string token
+ */
+function core_csrf_get_token() {
+	if ($csrf_token = $_SESSION['X-CSRF-Token']) {
+		$ret = $csrf_token;
+	}
+	return $ret;
+}
+
+/**
+ * Validate CSRF token
+ * @return boolean
+ */
+function core_csrf_validate() {
+	$submitted_token = $_POST['X-CSRF-Token'];
+	$token = core_csrf_get_token();
+	if ($token && $submitted_token && ($token == $submitted_token)) {
+		return TRUE;
+	} else {
+		return FALSE;
+	}
+}
+
+/**
+ * Get playSMS version
+ * @return string
+ */
+function core_get_version() {
+	$version = registry_search(1, 'core', 'config', 'playsms_version');
+	if ($version = $version['core']['config']['playsms_version']) {
+		return $version;
+	} else {
+		return '';
+	}	
+}

@@ -1,6 +1,6 @@
 <?php
 defined('_SECURE_') or die('Forbidden');
-if(!valid()){forcenoaccess();};
+if(!auth_isvalid()){auth_block();};
 
 $uid = $core_config['user']['uid'];
 
@@ -9,13 +9,22 @@ switch ($op) {
 		$content .= "
 			<h2>"._('Phonebook')."</h2>
 			<h3>"._('Import')."</h3>
-			<p>
-			<form action=\"index.php?app=menu&inc=tools_phonebook&route=import&op=import\" enctype=\"multipart/form-data\" method=\"post\">
-			"._('Please select CSV file for phonebook entries')."<br />
-			<input type=\"file\" name=\"fnpb\"> "._hint(_('format')." : "._('Name').", "._('Mobile').", "._('Email').", "._('Group code'))."<br />
-			<input type=\"submit\" value=\""._('Import')."\" class=\"button\">
-			</form>
-			<p>"._b('index.php?app=menu&inc=tools_phonebook&op=phonebook_list');
+			<table class=ps_table>
+				<tbody>
+					<tr>
+						<td>
+							<form action=\"index.php?app=menu&inc=tools_phonebook&route=import&op=import\" enctype=\"multipart/form-data\" method=POST>
+							"._CSRF_FORM_."
+							<p>"._('Please select CSV file for phonebook entries')."</p>
+							<p><input type=\"file\" size=30 name=\"fnpb\"></p>
+							<p class=text-info>"._('format')." : "._('Name').", "._('Mobile').", "._('Email').", "._('Group code')."</p>
+							<p><input type=\"submit\" value=\""._('Import')."\" class=\"button\"></p>
+							</form>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			<p>"._back('index.php?app=menu&inc=tools_phonebook&op=phonebook_list');
 		if ($err = $_SESSION['error_string']) {
 			echo "<div class=error_string>$err</div>";
 		}
@@ -30,11 +39,11 @@ switch ($op) {
 			<div class=table-responsive>
 			<table class=playsms-table-list>
 			<thead><tr>
-				<th width=\"4\">*</th>
-				<th width=\"30%\">"._('Name')."</th>
-				<th width=\"20%\">"._('Mobile')."</th>
+				<th width=\"5%\">*</th>
+				<th width=\"25%\">"._('Name')."</th>
+				<th width=\"25%\">"._('Mobile')."</th>
 				<th width=\"30%\">"._('Email')."</th>
-				<th width=\"20%\">"._('Group code')."</th>
+				<th width=\"15%\">"._('Group code')."</th>
 			</tr></thead><tbody>";
 		if (file_exists($fnpb_tmpname)) {
 			$fp = fopen($fnpb_tmpname, "r");
@@ -69,13 +78,14 @@ switch ($op) {
 			$content .= "
 				</tbody></table>
 				</div>
-				<p>"._('Import above phonebook entries ?')."
-				<form action=\"index.php?app=menu&inc=tools_phonebook&route=import&op=import_yes\" method=\"post\">
+				<p>"._('Import above phonebook entries ?')."</p>
+				<form action=\"index.php?app=menu&inc=tools_phonebook&route=import&op=import_yes\" method=POST>
+				"._CSRF_FORM_."
 				<input type=\"hidden\" name=\"number_of_row\" value=\"$j\">
 				<input type=\"hidden\" name=\"session_import\" value=\"".$session_import."\">
-				<input type=\"submit\" class=\"button\" value=\""._('Import')."\">
+				<p><input type=\"submit\" class=\"button\" value=\""._('Import')."\"></p>
 				</form>
-				<p>"._b('index.php?app=menu&inc=tools_phonebook&route=import&op=list');
+				<p>"._back('index.php?app=menu&inc=tools_phonebook&route=import&op=list');
 			echo $content;
 		} else {
 			$_SESSION['error_string'] = _('Fail to upload CSV file for phonebook');
@@ -88,6 +98,7 @@ switch ($op) {
 		$num = $_POST['number_of_row'];
 		$session_import = $_POST['session_import'];
 		$data = $_SESSION['tmp'][$session_import];
+		//$i = 0;
 		foreach ($data as $d) {
 			$name = trim($d[0]);
 			$mobile = trim($d[1]);
@@ -96,9 +107,31 @@ switch ($op) {
 				$gpid = phonebook_groupcode2id($uid, $group_code);
 			}
 			if ($name && $mobile && $gpid) {
-				dba_remove(_DB_PREF_.'_toolsPhonebook', array('name' => $name, 'gpid' => $gpid, 'uid' => $uid));
-				dba_add(_DB_PREF_.'_toolsPhonebook', array('uid' => $uid, 'name' => $name, 'mobile' => $mobile, 'email' => $email, 'gpid' => $gpid));
+				$list = dba_search(_DB_PREF_.'_toolsPhonebook', 'id', array('uid' => $uid, 'mobile' => $mobile));
+				if ($c_pid = $list[0]['id']) {
+					$save_to_group = TRUE;
+				} else {
+					$items = array('uid' => $uid, 'name' => $name, 'mobile' => $mobile, 'email' => $email);
+					if ($c_pid = dba_add(_DB_PREF_.'_toolsPhonebook', $items)) {
+						$save_to_group = TRUE;
+					} else {
+						logger_print('fail to add contact gpid:'.$gpid.' pid:'.$c_pid.' m:'.$mobile.' n:'.$name.' e:'.$email, 3, 'phonebook_add');
+					}
+				}
+				if ($save_to_group) {
+					$items = array('gpid' => $gpid, 'pid' => $c_pid);
+					if (dba_isavail(_DB_PREF_.'_toolsPhonebook_group_contacts', $items, 'AND')) {
+						if (dba_add(_DB_PREF_.'_toolsPhonebook_group_contacts', $items)) {
+							logger_print('contact added to group gpid:'.$gpid.' pid:'.$c_pid.' m:'.$mobile.' n:'.$name.' e:'.$email, 3, 'phonebook_add');
+						} else {
+							logger_print('contact added but fail to save in group gpid:'.$gpid.' pid:'.$c_pid.' m:'.$mobile.' n:'.$name.' e:'.$email, 3, 'phonebook_add');
+						}
+					}
+				}
+				//$i++;
+				//logger_print("no:".$i." gpid:".$gpid." uid:".$uid." name:".$name." mobile:".$mobile." email:".$email, 3, "phonebook import");
 			}
+			unset($gpid);
 		}
 		$_SESSION['error_string'] = _('Contacts has been imported');
 		header("Location: index.php?app=menu&inc=tools_phonebook&route=import&op=list");

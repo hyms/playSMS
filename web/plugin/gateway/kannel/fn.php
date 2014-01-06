@@ -1,6 +1,18 @@
 <?php
 defined('_SECURE_') or die('Forbidden');
 
+// hook_sendsms
+// called by main sms sender
+// return true for success delivery
+// $sms_sender	: sender mobile number
+// $sms_footer	: sender sms footer or sms sender ID
+// $sms_to	: destination sms number
+// $sms_msg	: sms message tobe delivered
+// $uid		: sender User ID
+// $gpid	: group phonebook id (optional)
+// $smslog_id	: sms ID
+// $sms_type : type of the message (defaults to text)
+// $unicode : send as unicode (boolean)
 function kannel_hook_sendsms($sms_sender,$sms_footer,$sms_to,$sms_msg,$uid='',$gpid=0,$smslog_id=0,$sms_type='text',$unicode=0) {
 	global $kannel_param;
 	global $http_path;
@@ -9,7 +21,7 @@ function kannel_hook_sendsms($sms_sender,$sms_footer,$sms_to,$sms_msg,$uid='',$g
 	$sms_footer = stripslashes($sms_footer);
 	$sms_msg = stripslashes($sms_msg);
 	$ok = false;
-	$account = uid2username($uid);
+	$account = user_uid2username($uid);
 	$msg_type = 1;
 
 	if ($sms_footer) {
@@ -41,21 +53,16 @@ function kannel_hook_sendsms($sms_sender,$sms_footer,$sms_to,$sms_msg,$uid='',$g
 		$URL .= "&mclass=".$msg_type;
 	}
 
+	//Automatically setting the unicode flag if necessary
+	if (!$unicode)
+		$unicode=core_detect_unicode($sms_msg);
+
 	if ($unicode) {
 		if (function_exists('mb_convert_encoding')) {
 			$sms_msg = mb_convert_encoding($sms_msg, "UCS-2BE", "auto");
 			$URL .= "&charset=UTF-16BE";
 		}
 		$URL .= "&coding=2";
-	}
-	// Unicode autodetect
-	else {
-		if (function_exists('mb_check_encoding')) {
-			if (mb_check_encoding($sms_msg,"UTF-8")){
-				$URL .= "&charset=UTF-8&coding=2";
-				logger_print("unicode autodetected", 3, "kannel outgoing");
-			}
-		}
 	}
 
 	$URL .= "&account=".$account;
@@ -64,8 +71,6 @@ function kannel_hook_sendsms($sms_sender,$sms_footer,$sms_to,$sms_msg,$uid='',$g
 	// fixme anton - patch 1.4.3, dlr requries smsc-id, you should add at least smsc=<your smsc-id in kannel.conf> from web
 	if ($additional_param = $kannel_param['additional_param']) {
 		$additional_param = "&".$additional_param;
-	} else {
-		$additional_param = "&smsc=default";
 	}
 	$URL .= $additional_param;
 	$URL = str_replace("&&", "&", $URL);

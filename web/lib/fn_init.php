@@ -1,5 +1,23 @@
 <?php
-defined('_SECURE_') or die('ERR403');
+
+/**
+ * This file is part of playSMS.
+ *
+ * playSMS is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * playSMS is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with playSMS.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+defined('_SECURE_') or die('Forbidden');
 
 /*
  start init functions
@@ -65,7 +83,6 @@ if (! function_exists('_')) {
 /**
  * Include essential functions
  */
-include_once $apps_path['libs']."/version.php";
 include_once $apps_path['libs']."/fn_dba.php";
 include_once $apps_path['libs']."/fn_registry.php";
 include_once $apps_path['libs']."/fn_user.php";
@@ -77,5 +94,3 @@ include_once $apps_path['libs']."/fn_core.php";
 /*
  * end of init functions
  */
-
-?>

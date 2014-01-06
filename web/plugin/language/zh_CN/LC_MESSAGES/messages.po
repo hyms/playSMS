@@ -53,7 +53,15 @@ msgstr "全部发件箱"
 msgid "All incoming SMS"
 msgstr "全部收到的短信"
 
+#, fuzzy
+msgid "All incoming messages"
+msgstr "全部收到的短信"
+
 msgid "All outgoing SMS"
+msgstr "全部发出的短信"
+
+#, fuzzy
+msgid "All outgoing messages"
 msgstr "全部发出的短信"
 
 #, fuzzy
@@ -78,6 +86,10 @@ msgstr "应用信息"
 
 msgid "Are you sure you want to delete outgoing SMS ?"
 msgstr "你确定要删除发出的信息吗 ?"
+
+#, fuzzy
+msgid "Are you sure you want to delete these items ?"
+msgstr "你确定删除这条短信吗 ?"
 
 msgid "Are you sure you want to delete this SMS ?"
 msgstr "你确定删除这条短信吗 ?"
@@ -279,6 +291,18 @@ msgstr "转发邮件页脚"
 msgid "Forward from"
 msgstr "转发邮件页脚"
 
+#, fuzzy
+msgid "Forward message to email"
+msgstr "转发邮件页脚"
+
+#, fuzzy
+msgid "Forward message to inbox"
+msgstr "转发邮件页脚"
+
+#, fuzzy
+msgid "Forward message to mobile"
+msgstr "转发邮件页脚"
+
 msgid "Forwarded email footer"
 msgstr "转发邮件页脚"
 
@@ -314,6 +338,10 @@ msgstr "收件箱"
 
 msgid "Incoming SMS"
 msgstr "收件箱"
+
+#, fuzzy
+msgid "Incoming messages"
+msgstr "发送为非代码信息"
 
 msgid "Installation Guide"
 msgstr ""
@@ -375,6 +403,10 @@ msgstr ""
 msgid "Message"
 msgstr "消息"
 
+#, fuzzy
+msgid "Message from"
+msgstr "消息"
+
 msgid "Message template"
 msgstr "信息模版"
 
@@ -402,6 +434,9 @@ msgstr "电子邮件已被其他用户使用"
 msgid "Mobile number"
 msgstr "电话号码"
 
+msgid "Move to"
+msgstr ""
+
 msgid "My Account"
 msgstr ""
 
@@ -423,10 +458,18 @@ msgstr "标准用户"
 msgid "Normal user"
 msgstr "一般用户"
 
+#, fuzzy
+msgid "Options"
+msgstr "行为"
+
 msgid "Or"
 msgstr "或者"
 
 msgid "Outgoing SMS"
+msgstr "短信发件箱"
+
+#, fuzzy
+msgid "Outgoing messages"
 msgstr "短信发件箱"
 
 msgid "Password"
@@ -528,6 +571,9 @@ msgstr "回复"
 msgid "Resend"
 msgstr ""
 
+msgid "SMS"
+msgstr ""
+
 msgid "SMS character"
 msgstr "短信字符"
 
@@ -545,14 +591,24 @@ msgstr "短信发件人"
 msgid "SMS to email"
 msgstr "转发邮件页脚"
 
+msgid "Sandbox"
+msgstr ""
+
 msgid "Save"
 msgstr "保存"
 
 msgid "Save template"
 msgstr "保存模版"
 
+msgid "Schedule"
+msgstr ""
+
 msgid "Search"
 msgstr ""
+
+#, fuzzy
+msgid "Select"
+msgstr "选择行为"
 
 msgid "Select action"
 msgstr "选择行为"
@@ -560,10 +616,18 @@ msgstr "选择行为"
 msgid "Selected incoming SMS has been deleted"
 msgstr "选择的收到的短信已删除"
 
+#, fuzzy
+msgid "Selected incoming message has been deleted"
+msgstr "选择的收到的短信已删除"
+
 msgid "Selected message template has been deleted"
 msgstr "选择的信息模版已被删除"
 
 msgid "Selected outgoing SMS has been deleted"
+msgstr "选择的发送短信已被删除"
+
+#, fuzzy
+msgid "Selected outgoing message has been deleted"
 msgstr "选择的发送短信已被删除"
 
 msgid "Send"
@@ -580,6 +644,10 @@ msgstr "发送为非代码信息"
 
 msgid "Send broadcast SMS"
 msgstr "发送广播短信"
+
+#, fuzzy
+msgid "Send message"
+msgstr "发送为非代码信息"
 
 msgid "Send to"
 msgstr "发送到"
@@ -598,6 +666,9 @@ msgstr "州或省"
 
 msgid "Status"
 msgstr "状态"
+
+msgid "This field is required"
+msgstr ""
 
 msgid "Time"
 msgstr "时间"
@@ -757,17 +828,27 @@ msgstr ""
 msgid "Your message"
 msgstr "你的信息"
 
+#, fuzzy
+msgid "Your message has been delivered to queue"
+msgstr "你的短信已在发送序列中"
+
 msgid "Your mobile format is invalid"
 msgstr ""
 
 msgid "Zipcode"
 msgstr "邮政编码"
 
+msgid "chars"
+msgstr ""
+
 msgid "email"
 msgstr "电子邮件"
 
 msgid "failed"
 msgstr "发送失败"
+
+msgid "format YYYY-MM-DD hh:mm"
+msgstr ""
 
 #, fuzzy
 msgid "forward"
@@ -794,6 +875,9 @@ msgstr "为设置"
 msgid "number"
 msgstr "号码"
 
+msgid "prefix with # for groups and @ for users"
+msgstr ""
+
 msgid "queued"
 msgstr ""
 
@@ -818,6 +902,9 @@ msgstr "未处理的"
 
 msgid "username"
 msgstr "用户名"
+
+msgid "version"
+msgstr ""
 
 msgid "yes"
 msgstr ""

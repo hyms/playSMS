@@ -1,10 +1,28 @@
 <?php
+
+/**
+ * This file is part of playSMS.
+ *
+ * playSMS is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * playSMS is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with playSMS.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 defined('_SECURE_') or die('Forbidden');
-if(!valid()){forcenoaccess();};
+if(!auth_isvalid()){auth_block();};
 
 $c_username = $core_config['user']['username'];
 
-if (($uname = $_REQUEST['uname']) && isadmin()) {
+if (($uname = $_REQUEST['uname']) && auth_isadmin()) {
 	$c_username = trim($uname);
 	$url_uname = '&uname='.$c_username;
 }
@@ -131,7 +149,7 @@ switch ($op) {
 		$lang_list = '';
 		for ($i=0;$i<count($core_config['languagelist']);$i++) {
 			$language = $core_config['languagelist'][$i];
-			$c_language_title = $core_config['plugins']['language'][$language]['title'];
+			$c_language_title = $core_config['plugin'][$language]['title'];
 			if ($c_language_title) {
 				$lang_list[$c_language_title] = $language;
 			}
@@ -145,22 +163,23 @@ switch ($op) {
 			}
 		}
 
-		if ($uname && isadmin()) {
+		if ($uname && auth_isadmin()) {
 			$content .= "<h2>" . _('Manage user') . "</h2>";
 			$option_credit = "<tr><td>" . _('Credit') . "</td><td><input type=text size=10 maxlength=10 name=up_credit value=\"$credit\"></td></tr>";
 			$button_delete = "<input type=button class=button value='". _('Delete') ."' onClick=\"javascript: ConfirmURL('" . _('Are you sure you want to delete user ?') . " (" . _('username') . ": " . $c_username . ")','index.php?app=menu&inc=user_mgmnt&op=user_del".$url_uname."')\">";
-			$button_back = _b('index.php?app=menu&inc=user_mgmnt&op='.$referrer);
+			$button_back = _back('index.php?app=menu&inc=user_mgmnt&op='.$referrer);
 		} else {
 			$content .= "<h2>" . _('User configuration') . "</h2>";
 			$option_credit = "<tr><td>" . _('Credit') . "</td><td>$credit</td></tr>";
 		}
 		$content .= "
-			<form action=\"index.php?app=menu&inc=user_config&op=user_config_save" . $url_uname . "\" method=post enctype=\"multipart/form-data\">
+			<form action=\"index.php?app=menu&inc=user_config&op=user_config_save" . $url_uname . "\" method=POST enctype=\"multipart/form-data\">
+			"._CSRF_FORM_."
 			<h3>" . _('Application options') . "</h3>
 			<table class=playsms-table>
 			<tbody>
 			<tr><td class=label-sizer>" . _('Username') . "</td><td>".$c_username."</td></tr>
-			<tr><td>" . _mandatory('Mobile') . "</td><td><input type=text size=30 maxlength=20 name=up_mobile value=\"$mobile\"> " . _hint(_('Max. 20 digits mobile phone number')) . "</td></tr>
+			<tr><td>" . _mandatory(_('Mobile')) . "</td><td><input type=text size=30 maxlength=20 name=up_mobile value=\"$mobile\"> " . _hint(_('Max. 20 digits mobile phone number')) . "</td></tr>
 			<tr><td>" . _('Effective SMS sender ID') . "</td><td>" . sendsms_get_sender($c_username) . "</td></tr>
 			<tr><td>" . _('SMS sender ID') . "</td><td><input type=text size=30 maxlength=16 name=up_sender value=\"$sender\"> " . _hint(_('Max. 16 numeric or 11 alphanumeric characters')) . "</td></tr>
 			<tr><td>" . _('SMS footer') . "</td><td><input type=text size=30 maxlength=30 name=up_footer value=\"$footer\"> " . _hint(_('Max. 30 alphanumeric characters')) . "</td></tr>
@@ -170,11 +189,11 @@ switch ($op) {
 			<tr><td>" . _('New webservices token') . "</td><td><select name='up_new_token'>" . $option_new_token . "</select></td></tr>
 			<tr><td>" . _('Enable webservices') . "</td><td><select name='up_enable_webservices'>" . $option_enable_webservices . "</select></td></tr>
 			<tr><td>" . _('Webservices IP range') . "</td><td><input type=text size=30 maxlength=100 name=up_webservices_ip value=\"$webservices_ip\"> "._hint(_('Comma seperated'))."</td></tr>
-			<tr><td>Active language</td><td><select name=up_language_module>$option_language_module</select></td></tr>
+			<tr><td>" . _('Active language') . "</td><td><select name=up_language_module>$option_language_module</select></td></tr>
 			<tr><td>" . _('Timezone') . "</td><td><input type=text size=5 maxlength=5 name=up_datetime_timezone value=\"$datetime_timezone\"> " . _hint(_('Eg: +0700 for Jakarta/Bangkok timezone')) . "</td></tr>
-			<tr><td>" . _('Forward SMS to inbox') . "</td><td><select name='up_fwd_to_inbox'>" . $option_fwd_to_inbox . "</select></td></tr>
-			<tr><td>" . _('Forward SMS to email') . "</td><td><select name='up_fwd_to_email'>" . $option_fwd_to_email . "</select></td></tr>
-			<tr><td>" . _('Forward SMS to mobile') . "</td><td><select name='up_fwd_to_mobile'>" . $option_fwd_to_mobile . "</select></td></tr>
+			<tr><td>" . _('Forward message to inbox') . "</td><td><select name='up_fwd_to_inbox'>" . $option_fwd_to_inbox . "</select></td></tr>
+			<tr><td>" . _('Forward message to email') . "</td><td><select name='up_fwd_to_email'>" . $option_fwd_to_email . "</select></td></tr>
+			<tr><td>" . _('Forward message to mobile') . "</td><td><select name='up_fwd_to_mobile'>" . $option_fwd_to_mobile . "</select></td></tr>
 			<tr><td>" . _('Local number length') . "</td><td><input type=text size=5 maxlength=5 name='up_local_length' value=\"$local_length\"> " . _hint(_('Min length to detect missing country code')) . "</td></tr>
 			<tr><td>" . _('Prefix or country code') . "</td><td><input type=text size=5 maxlength=5 name='up_replace_zero' value=\"$replace_zero\"> " . _hint(_('Replace prefix 0 or padding local numbers')) . "</td></tr>
 			<tr><td>" . _('Auto remove plus sign') . "</td><td><select name='up_plus_sign_remove'>" . $option_plus_sign_remove . "</select></td></tr>
@@ -195,7 +214,7 @@ switch ($op) {
 			'replace_zero', 'plus_sign_remove', 'plus_sign_add', 'send_as_unicode',
 			'new_token', 'enable_webservices', 'webservices_ip', 'sender'
 		);
-		if ($uname && isadmin()) {
+		if ($uname && auth_isadmin()) {
 			$fields[] = 'credit';
 		}
 		for ($i=0;$i<count($fields);$i++) {
@@ -234,4 +253,3 @@ switch ($op) {
 		exit();
 		break;
 }
-?>

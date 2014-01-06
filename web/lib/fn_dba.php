@@ -1,4 +1,22 @@
 <?php
+
+/**
+ * This file is part of playSMS.
+ *
+ * playSMS is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * playSMS is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with playSMS.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 defined('_SECURE_') or die('Forbidden');
 
 // DB.php is part of PHP PEAR-DB package
@@ -18,13 +36,22 @@ function dba_connect($username,$password,$dbname,$hostname,$port="",$persistant=
 	if ($port) {
 		$host = "$hostname:$port";
 	}
-	$dsn = _DB_TYPE_."://$access@$host/$dbname";
-	$dba_object = DB::connect("$dsn","$persistant");
+	if (_DB_DSN_) {
+		$dsn = _DB_DSN_;
+	} else {
+		$dsn = _DB_TYPE_."://$access@$host/$dbname";
+	}
+	if (_DB_OPT_) {
+		$options = _DB_OPT_;
+	} else {
+		$options = $persistant;
+	}
+	$dba_object = DB::connect($dsn,$options);
 
 	if (DB::isError($dba_object)) {
 		// $error_msg = "DB Name: $dbname<br>DB Host: $host";
 		ob_end_clean();
-		//die ("<p align=left>".$dba_object->getMessage()."<br>".$error_msg."<br>");
+		die ("<p align=left>".$dba_object->getMessage()."<br>".$error_msg."<br>");
 		return false;
 	}
 	return $dba_object;
@@ -207,13 +234,13 @@ function dba_search($db_table, $fields='*', $conditions='', $keywords='', $extra
 	}
 	if (is_array($conditions)) {
 		foreach ($conditions as $key => $val) {
-			$q_conditions .= "AND `".$key."`='".$val."' ";
+			$q_conditions .= "AND ".$key."='".$val."' ";
 		}
 	}
 	if (is_array($keywords)) {
 		$q_keywords = "AND (";
 		foreach ($keywords as $key => $val) {
-			$q_keywords .= "OR `".$key."` LIKE '".$val."' ";
+			$q_keywords .= "OR ".$key." LIKE '".$val."' ";
 		}
 		$q_keywords .= ")";
 		$q_keywords = str_replace("(OR","(",$q_keywords);
@@ -229,6 +256,7 @@ function dba_search($db_table, $fields='*', $conditions='', $keywords='', $extra
 		}
 	}
 	$db_query = "SELECT ".$q_fields." FROM ".$db_table." ".$join." ".$q_where." ".$q_sql_where." ".$q_extras;
+	// logger_print("q: ".$db_query, 3, "dba_search");
 	$db_result = dba_query($db_query);
 	while ($db_row = dba_fetch_array($db_result)) {
 		$ret[] = $db_row;
@@ -240,13 +268,13 @@ function dba_count($db_table, $conditions='', $keywords='', $extras='', $join=''
 	$ret = 0;
 	if (is_array($conditions)) {
 		foreach ($conditions as $key => $val) {
-			$q_conditions .= "AND `".$key."`='".$val."' ";
+			$q_conditions .= "AND ".$key."='".$val."' ";
 		}
 	}
 	if (is_array($keywords)) {
 		$q_keywords = "AND (";
 		foreach ($keywords as $key => $val) {
-			$q_keywords .= "OR `".$key."` LIKE '".$val."' ";
+			$q_keywords .= "OR ".$key." LIKE '".$val."' ";
 		}
 		$q_keywords .= ")";
 		$q_keywords = str_replace("(OR","(",$q_keywords);
@@ -266,6 +294,8 @@ function dba_count($db_table, $conditions='', $keywords='', $extras='', $join=''
 	if ($db_row = dba_fetch_array($db_result)) {
 		$ret = $db_row['count'];
 	}
+	// fixme anton - just to make sure, if its empty then should be 0
+	$ret = ( trim($ret) ? trim($ret) : 0 );
 	return $ret;
 }
 
@@ -273,7 +303,7 @@ function dba_add($db_table, $items) {
 	$ret = false;
 	if (is_array($items)) {
 		foreach ($items as $key => $val) {
-			$sets .= "`".$key."`,";
+			$sets .= $key.",";
 			$vals .= "'".$val."',";
 		}
 		if ($sets && $vals) {
@@ -293,13 +323,13 @@ function dba_update($db_table, $items, $condition='', $operand='AND') {
 	global $core_config;
 	if (is_array($items)) {
 		foreach ($items as $key => $val) {
-			$sets .= "`".$key."`='".$val."',";
+			$sets .= $key."='".$val."',";
 		}
 		if ($sets) {
 			$sets = substr($sets, 0, -1);
 			if (is_array($condition)) {
 				foreach ($condition as $key => $val){ 
-					$q_condition .= " ".$operand." `".$key."`='".$val."'";
+					$q_condition .= " ".$operand." ".$key."='".$val."'";
 				}
 				if ($q_condition) {
 					$q_condition = " WHERE 1=1 ".$q_condition;
@@ -318,7 +348,7 @@ function dba_remove($db_table, $condition='', $operand='AND') {
 	$ret = false;
 	if (is_array($condition)) {
 		foreach ($condition as $key => $val){ 
-			$q_condition .= $operand." `".$key."`='".$val."' ";
+			$q_condition .= $operand." ".$key."='".$val."' ";
 		}
 		if ($q_condition) {
 			$q_condition = "WHERE ".substr($q_condition, 3);
@@ -335,7 +365,7 @@ function dba_isavail($db_table, $conditions='', $operand='OR') {
 	$ret = false;
 	if (is_array($conditions)) {
 		foreach ($conditions as $key => $val) {
-			$q_condition .= $operand." `".$key."`='".$val."' ";
+			$q_condition .= $operand." ".$key."='".$val."' ";
 		}
 		if ($q_condition) {
 			$q_condition = "WHERE ".substr($q_condition, 3);
@@ -361,7 +391,7 @@ function dba_valid($db_table, $field, $value) {
 	$ret = false;
 	if ($db_table && $field && $value) {
 		$conditions[$field] = $value;
-		if (! isadmin()) {
+		if (! auth_isadmin()) {
 			$conditions['uid'] = $core_config['user']['uid'];
 		}
 		if ($list = dba_search($db_table, $field, $conditions)) {
@@ -370,5 +400,3 @@ function dba_valid($db_table, $field, $value) {
 	}
 	return $ret;
 }
-
-?>

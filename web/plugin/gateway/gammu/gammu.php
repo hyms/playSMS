@@ -1,10 +1,10 @@
 <?php
 defined('_SECURE_') or die('Forbidden');
-if(!isadmin()){forcenoaccess();};
+if(!auth_isadmin()){auth_block();};
 
 include $apps_path['plug']."/gateway/gammu/config.php";
 
-$gw = gateway_get();
+$gw = core_gateway_get();
 
 if ($gw == $gammu_param['name']) {
 	$status_active = "<span class=status_active />";
@@ -26,6 +26,7 @@ switch ($op) {
 				</tr>
 				</tbody>
 			</table>";
+		$content .= _back('index.php?app=menu&inc=tools_gatewaymanager&op=gatewaymanager_list');
 		echo $content;
 		break;
 	case "manage_activate":

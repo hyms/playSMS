@@ -252,7 +252,7 @@ class DB_mysqli extends DB_common
      *
      * Example of how to connect using SSL:
      * <code>
-     * require_once 'DB.php';
+     * require_once LIBS.'DB.php';
      * 
      * $dsn = array(
      *     'phptype'  => 'mysqli',
@@ -1088,5 +1088,3 @@ class DB_mysqli extends DB_common
  * c-basic-offset: 4
  * End:
  */
-
-?>

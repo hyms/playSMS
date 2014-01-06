@@ -1,10 +1,10 @@
 <?php
 defined ( '_SECURE_' ) or die ( 'Forbidden' );
-if (! isadmin ()) {
-	forcenoaccess ();
+if (! auth_isadmin ()) {
+	auth_block ();
 };
 
-$gw = gateway_get ();
+$gw = core_gateway_get ();
 
 if ($gw == $infobip_param ['name']) {
 	$status_active = "<span class=status_active />";
@@ -28,6 +28,7 @@ switch ($op) {
 		$content .= "
 			<h2>" . _ ( 'Manage infobip' ) . "</h2>
 			<form action=index.php?app=menu&inc=gateway_infobip&op=manage_save method=post>
+			"._CSRF_FORM_."
 			<table class=playsms-table>
 			<tr>
 				<td class=label-sizer>" . _ ( 'Gateway name' ) . "</td><td>infobip $status_active</td>
@@ -60,6 +61,7 @@ switch ($op) {
 			- " . _ ( 'Your callback URL should be accessible from Infobip' ) . "<br />
 			- " . _ ( 'Infobip will push DLR and incoming SMS to above URL' ) . "<br />
 			- " . _ ( 'Infobip is a bulk SMS provider' ) . ", <a href=\"http://www.infobip.com\" target=\"_blank\">" . _ ( 'create an account to send SMS' ) . "</a>";
+		$content .= _back('index.php?app=menu&inc=tools_gatewaymanager&op=gatewaymanager_list');
 		echo $content;
 		break;
 	case "manage_save" :

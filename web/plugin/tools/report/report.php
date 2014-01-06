@@ -1,7 +1,7 @@
 <?php
 
-if (!valid()) {
-	forcenoaccess();
+if (!auth_isvalid()) {
+	auth_block();
 };
 
 $smslog_id = $_GET ['smslog_id'];
@@ -74,8 +74,8 @@ switch ($op) {
 		break;
 
 	case "report_admin" :
-		if (!isadmin()) {
-			forcenoaccess();
+		if (!auth_isadmin()) {
+			auth_block();
 		};
 
 		unset($tpl);
@@ -146,7 +146,7 @@ switch ($op) {
 			
 			$c_is_admin = '';
 			if ($c_status=='2') {
-				$c_is_admin = "<i class='glyphicon glyphicon-wrench playsms-mandatory' data-toggle=tooltip title='"._('This user is administrator')."' rel=tooltip></i>";
+				$c_is_admin = $core_config['icon']['admin'];
 			}
 			
 

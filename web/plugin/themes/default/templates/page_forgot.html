@@ -7,6 +7,7 @@
 			<tr>
 				<td>
 				<form action="index.php" method=POST>
+				{CSRF_FORM}
 				<input type=hidden name=app value=page>
 				<input type=hidden name=inc value=login>
 				<input type=hidden name=op value=auth_forgot>
@@ -34,15 +35,15 @@
 					<tr>
 						<td><input type=submit class=button value='{Submit}'></td>
 					</tr>
-
-					<if.enable_register>
+					
+					<tr><td>&nbsp;</td></tr>
 					<tr>
-						<td><a href='index.php?app=page&inc=register'>{Register an account}</a></td>
-					</tr>
-					</if.enable_register>
-
-					<tr>
-						<td><a href='index.php'>{Login}</a></td>
+						<td>
+							<if.enable_register>
+								<p><a href='index.php?app=page&inc=register'>{Register an account}</a></p>
+							</if.enable_register>
+							<p><a href='index.php'>{Login}</a></p>
+						</td>
 					</tr>
 
 					<tr><td>&nbsp;</td></tr>

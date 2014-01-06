@@ -1,4 +1,22 @@
 <?php
+
+/**
+ * This file is part of playSMS.
+ *
+ * playSMS is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * playSMS is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with playSMS.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 defined('_SECURE_') or die('Forbidden');
 
 /**
@@ -7,7 +25,7 @@ defined('_SECURE_') or die('Forbidden');
  * @param string $password Password
  * @return boolean TRUE when validated or boolean FALSE when validation failed
  */
-function validatelogin($username,$password) {
+function auth_validate_login($username,$password) {
 	logger_print("login attempt u:".$username." p:".md5($password)." ip:".$_SERVER['REMOTE_ADDR'], 3, "login");
 	$db_query = "SELECT password FROM "._DB_PREF_."_tblUser WHERE username='$username'";
 	$db_result = dba_query($db_query);
@@ -27,7 +45,7 @@ function validatelogin($username,$password) {
  * @param string $token Token
  * @return string User ID when validated or boolean FALSE when validation failed
  */
-function validatetoken($token) {
+function auth_validate_token($token) {
 	$token = trim($token);
 	logger_print("login attempt t:".$token." ip:".$_SERVER['REMOTE_ADDR'], 3, "login");
 	if ($token) {
@@ -54,7 +72,7 @@ function validatetoken($token) {
  * Check if ticket is valid, that visitor has access or validated
  * @return boolean TRUE if valid
  */
-function valid() {
+function auth_isvalid() {
 	if ($_SESSION['username'] && $_SESSION['valid']) {
 		return true;
 	}
@@ -65,8 +83,8 @@ function valid() {
  * Check if visitor has admin access level
  * @return boolean TRUE if valid and visitor has admin access level
  */
-function isadmin() {
-	if (valid()) {
+function auth_isadmin() {
+	if (auth_isvalid()) {
 		if ($_SESSION['status']==2) {
 			return true;
 		} else {
@@ -78,8 +96,10 @@ function isadmin() {
 /**
  * Force forward to noaccess page
  */
-function forcenoaccess() {
+function auth_block() {
+	global $core_config;
 	$_SESSION['error_string'] = _('You have no access to this page');
+	logger_print("WARNING: no access. sid:".$_SESSION['sid']." ip:".$_SERVER['REMOTE_ADDR']." uid:".$core_config['user']['uid']." app:"._APP_." inc:"._INC_." op:"._OP_." route:"._ROUTE_, 2, "auth_block");
 	header("Location: index.php?app=page&inc=noaccess");
 	exit();
 }
@@ -93,7 +113,7 @@ function auth_login() {
 	$username = trim($_REQUEST['username']);
 	$password = trim($_REQUEST['password']);
 	if ($username && $password) {
-		if (validatelogin($username,$password)) {
+		if (auth_validate_login($username,$password)) {
 			$db_query = "UPDATE "._DB_PREF_."_tblUser SET c_timestamp='".mktime()."',ticket='1' WHERE username='$username'";
 			if (@dba_affected_rows($db_query)) {
 				$_SESSION['sid'] = session_id();
@@ -148,13 +168,20 @@ function auth_forgot() {
 					$new_password_coded = md5($new_password);
 					$db_query = "UPDATE "._DB_PREF_."_tblUser SET password='$new_password_coded' WHERE username='$username' AND email='$email'";
 					if (@dba_affected_rows($db_query)) {
-						$subject = "[SMSGW] "._('Password recovery');
+						$subject = _('Password recovery');
 						$body = $core_config['main']['cfg_web_title']."\n";
 						$body .= $core_config['http_path']['base']."\n\n";
 						$body .= _('Username')."\t: ".$username."\n";
 						$body .= _('Password')."\t: ".$new_password."\n\n";
 						$body .= $core_config['main']['cfg_email_footer']."\n\n";
-						if (sendmail($core_config['main']['cfg_email_service'],$email,$subject,$body)) {
+						$data = array(
+							'mail_from_name' => $core_config['main']['cfg_web_title'],
+							'mail_from' => $core_config['main']['cfg_email_service'],
+							'mail_to' => $email,
+							'mail_subject' => $subject,
+							'mail_body' => $body
+						);
+						if (sendmail($data)) {
 							$_SESSION['error_string'] = _('Password has been sent to your email');
 						} else {
 							$_SESSION['error_string'] = _('Fail to send email');
@@ -238,15 +265,21 @@ function auth_register() {
 			}
 			if ($ok) {
 				logger_print("u:".$username." email:".$email." ip:".$_SERVER['REMOTE_ADDR'], 2, "register");
-				$subject = "[SMSGW] "._('New account registration');
+				$subject = _('New account registration');
 				$body = $core_config['main']['cfg_web_title']."\n";
 				$body .= $core_config['http_path']['base']."\n\n";
 				$body .= _('Username')."\t: $username\n";
 				$body .= _('Password')."\t: $password\n\n";
 				$body .= $core_config['main']['cfg_email_footer']."\n\n";
 				$_SESSION['error_string'] = _('User has been added')." ("._('username').": ".$username.")";
-				$_SESSION['error_string'] .= "<br />";
-				if (sendmail($core_config['main']['cfg_email_service'],$email,$subject,$body)) {
+				$data = array(
+					'mail_from_name' => $core_config['main']['cfg_web_title'],
+					'mail_from' => $core_config['main']['cfg_email_service'],
+					'mail_to' => $email,
+					'mail_subject' => $subject,
+					'mail_body' => $body
+				);
+				if (sendmail($data)) {
 					$_SESSION['error_string'] .= _('Password has been sent to your email');
 				} else {
 					$_SESSION['error_string'] .= _('Fail to send email');
@@ -259,5 +292,3 @@ function auth_register() {
 	header("Location: ".$core_config['http_path']['base']);
 	exit();
 }
-
-?>

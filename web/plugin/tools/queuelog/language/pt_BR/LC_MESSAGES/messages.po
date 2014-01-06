@@ -5,20 +5,26 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
+msgid "Action"
+msgstr ""
+
+msgid "Are you sure you want to delete queue"
+msgstr ""
+
 msgid "Count"
 msgstr "Contador"
-
-msgid "Date/Time"
-msgstr "Data/hora"
-
-msgid "Group"
-msgstr "Grupo"
 
 msgid "Message"
 msgstr "Mensagem"
 
 msgid "Queue Code"
 msgstr "Código na fila"
+
+msgid "Queue has been remove"
+msgstr ""
+
+msgid "Scheduled"
+msgstr ""
 
 msgid "User"
 msgstr "Usuário"

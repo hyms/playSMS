@@ -170,7 +170,7 @@ class DB_dbase extends DB_common
      *
      * Example of how to connect and establish a new dBase file if necessary:
      * <code>
-     * require_once 'DB.php';
+     * require_once LIBS.'DB.php';
      *
      * $dsn = array(
      *     'phptype'  => 'dbase',
@@ -506,5 +506,3 @@ class DB_dbase extends DB_common
  * c-basic-offset: 4
  * End:
  */
-
-?>

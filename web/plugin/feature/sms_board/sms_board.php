@@ -1,10 +1,10 @@
 <?php
 defined('_SECURE_') or die('Forbidden');
-if(!valid()){forcenoaccess();};
+if(!auth_isvalid()){auth_block();};
 
 if ($board_id = $_REQUEST['board_id']) {
 	if (! ($board_id = dba_valid(_DB_PREF_.'_featureBoard', 'board_id', $board_id))) {
-		forcenoaccess();
+		auth_block();
 	}
 }
 
@@ -19,7 +19,7 @@ switch ($op) {
 			<div class=table-responsive>
 			<table class=playsms-table-list>
 			<thead><tr>";
-		if (isadmin()) {
+		if (auth_isadmin()) {
 			$content .= "
 				<th width=20%>"._('Keyword')."</th>
 				<th width=50%>"._('Forward')."</th>
@@ -34,18 +34,18 @@ switch ($op) {
 		$content .= "
 			</tr></thead>
 			<tbody>";
-		if (! isadmin()) {
+		if (! auth_isadmin()) {
 			$query_user_only = "WHERE uid='$uid'";
 		}
 		$db_query = "SELECT * FROM "._DB_PREF_."_featureBoard ".$query_user_only." ORDER BY board_keyword";
 		$db_result = dba_query($db_query);
 		$i=0;
 		while ($db_row = dba_fetch_array($db_result)) {
-			if ($owner = uid2username($db_row['uid'])) {
+			if ($owner = user_uid2username($db_row['uid'])) {
 				$action = "<a href=index.php?app=menu&inc=feature_sms_board&route=view&op=list&board_id=".$db_row['board_id'].">".$core_config['icon']['view']."</a>&nbsp;";
 				$action .= "<a href=index.php?app=menu&inc=feature_sms_board&op=sms_board_edit&board_id=".$db_row['board_id'].">".$core_config['icon']['edit']."</a>&nbsp;";
 				$action .= "<a href=\"javascript: ConfirmURL('"._('Are you sure you want to delete SMS board with all its messages ?')." ("._('keyword').": ".$db_row['board_keyword'].")','index.php?app=menu&inc=feature_sms_board&op=sms_board_del&board_id=".$db_row['board_id']."')\">".$core_config['icon']['delete']."</a>";
-				if (isadmin()) {
+				if (auth_isadmin()) {
 					$option_owner = "<td>$owner</td>";
 				}
 				$i++;
@@ -80,6 +80,7 @@ switch ($op) {
 			<h2>"._('Manage board')."</h2>
 			<h3>"._('Edit SMS board')."</h3>
 			<form action=index.php?app=menu&inc=feature_sms_board&op=sms_board_edit_yes method=post>
+			"._CSRF_FORM_."
 			<input type=hidden name=board_id value=$board_id>
 			<input type=hidden name=edit_board_keyword value=$edit_board_keyword>
 			<table class=playsms-table>
@@ -101,7 +102,7 @@ switch ($op) {
 			</table>
 			<p><input type=submit class=button value=\""._('Save')."\">
 			</form>
-			"._b('index.php?app=menu&inc=feature_sms_board&op=sms_board_list');
+			"._back('index.php?app=menu&inc=feature_sms_board&op=sms_board_list');
 		echo $content;
 		break;
 	case "sms_board_edit_yes":
@@ -154,6 +155,7 @@ switch ($op) {
 			<h2>"._('Manage board')."</h2>
 			<h3>"._('Add SMS board')."</h3>
 			<form action=index.php?app=menu&inc=feature_sms_board&op=sms_board_add_yes method=post>
+			"._CSRF_FORM_."
 			<table class=playsms-table cellpadding=1 cellspacing=2 border=0>
 			<tr>
 				<td class=label-sizer>"._('SMS board keyword')."</td><td><input type=text size=30 maxlength=30 name=add_board_keyword value=\"$add_board_keyword\"></td>
@@ -167,7 +169,7 @@ switch ($op) {
 			</table>
 			<p><input type=submit class=button value=\""._('Save')."\">
 			</form>
-			"._b('index.php?app=menu&inc=feature_sms_board&op=sms_board_list');
+			"._back('index.php?app=menu&inc=feature_sms_board&op=sms_board_list');
 		echo $content;
 		break;
 	case "sms_board_add_yes":

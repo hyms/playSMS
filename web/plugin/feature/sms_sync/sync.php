@@ -17,7 +17,7 @@ $sms_sync_secret = $list['feature']['sms_sync']['secret'];
 $sms_sync_enable = $list['feature']['sms_sync']['enable'];
 
 $message_id = $r['message_id'];
-$sms_datetime = $core_config['datetime']['now'];
+$sms_datetime = core_get_datetime();
 $sms_sender = $r['from'];
 $message = $r['message'];
 $sms_receiver = $r['sent_to'];
@@ -35,7 +35,7 @@ if ($sms_sync_enable && $c_uid && ($r['secret'] == $sms_sync_secret) && $message
 		$c_m = str_replace('#', '', $m[0]);
 		if (checkavailablekeyword($c_m)) {
 			logger_print("forwarded to inbox uid:" . $c_uid . " message_id:" . $message_id, 3, "sms_sync sync");
-			$message = "@" . uid2username($c_uid) . " " . $message;
+			$message = "@" . user_uid2username($c_uid) . " " . $message;
 		}
 		if ($recvsms_id = recvsms($sms_datetime, $sms_sender, $message, $sms_receiver)) {
 			$items = array('uid' => $c_uid, 'message_id' => $message_id, 'recvsms_id' => $recvsms_id);

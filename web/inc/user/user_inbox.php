@@ -1,6 +1,24 @@
 <?php
+
+/**
+ * This file is part of playSMS.
+ *
+ * playSMS is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * playSMS is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with playSMS.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 defined('_SECURE_') or die('Forbidden');
-if(!valid()){forcenoaccess();};
+if(!auth_isvalid()){auth_block();};
 
 switch ($op) {
 	case "user_inbox":
@@ -19,10 +37,11 @@ switch ($op) {
 				'SEARCH_FORM' => $search['form'],
 				'NAV_FORM' => $nav['form'],
 				'Inbox' => _('Inbox'),
-				'Export' => _('Export'),
-				'Delete' => _('Delete'),
+				'Export' => $core_config['icon']['export'],
+				'Delete' => $core_config['icon']['delete'],
 				'From' => _('From'),
-				'Message' => _('Message')
+				'Message' => _('Message'),
+				'ARE_YOU_SURE' => _('Are you sure you want to delete these items ?')
 			)
 		);
 		$i = $nav['top'];
@@ -34,7 +53,7 @@ switch ($op) {
 			$p_desc = phonebook_number2name($in_sender);
 			$current_sender = $in_sender;
 			if ($p_desc) {
-				$current_sender = "$in_sender<br>($p_desc)";
+				$current_sender = "$in_sender<br />$p_desc";
 			}
 			$in_datetime = core_display_datetime($list[$j]['in_datetime']);
 			$msg = $list[$j]['in_msg'];
@@ -42,8 +61,8 @@ switch ($op) {
 			$reply = '';
 			$forward = '';
 			if ($msg && $in_sender) {
-				$reply = _a('index.php?app=menu&inc=send_sms&op=sendsmstopv&do=reply&message='.urlencode($msg).'&to='.urlencode($in_sender), $core_config['icon']['reply']);
-				$forward = _a('index.php?app=menu&inc=send_sms&op=sendsmstopv&do=forward&message='.urlencode($msg), $core_config['icon']['forward']);
+				$reply = _a('index.php?app=menu&inc=send_sms&op=send_sms&do=reply&message='.urlencode($msg).'&to='.urlencode($in_sender), $core_config['icon']['reply']);
+				$forward = _a('index.php?app=menu&inc=send_sms&op=send_sms&do=forward&message='.urlencode($msg), $core_config['icon']['forward']);
 			}
 			$i--;
 			$tpl['loop']['data'][] = array(
@@ -72,23 +91,23 @@ switch ($op) {
 		$search = themes_search_session();
 		$go = $_REQUEST['go'];
 		switch ($go) {
-			case _('Export'):
+			case 'export':
 				$conditions = array('in_uid' => $uid, 'in_hidden' => 0);
 				$list = dba_search(_DB_PREF_.'_tblUserInbox', '*', $conditions, $search['dba_keywords']);
 				$data[0] = array(_('User'), _('Time'), _('From'), _('Message'));
 				for ($i=0;$i<count($list);$i++) {
 					$j = $i + 1;
 					$data[$j] = array(
-						uid2username($list[$i]['in_uid']),
+						user_uid2username($list[$i]['in_uid']),
 						core_display_datetime($list[$i]['in_datetime']),
 						$list[$i]['in_sender'],
 						$list[$i]['in_msg']);
 				}
-				$content = csv_format($data);
+				$content = core_csv_format($data);
 				$fn = 'user_inbox-'.$core_config['datetime']['now_stamp'].'.csv';
-				download($content, $fn, 'text/csv');
+				core_download($content, $fn, 'text/csv');
 				break;
-			case _('Delete'):
+			case 'delete':
 				for ($i=0;$i<$nav['limit'];$i++) {
 					$checkid = $_POST['checkid'.$i];
 					$itemid = $_POST['itemid'.$i];
@@ -98,10 +117,8 @@ switch ($op) {
 					}
 				}
 				$ref = $nav['url'].'&search_keyword='.$search['keyword'].'&page='.$nav['page'].'&nav='.$nav['nav'];
-				$_SESSION['error_string'] = _('Selected incoming SMS has been deleted');
+				$_SESSION['error_string'] = _('Selected incoming message has been deleted');
 				header("Location: ".$ref);
 		}
 		break;
 }
-
-?>

@@ -24,7 +24,6 @@
  * @link       http://pear.php.net/package/DB
  */
 
-
 /**
  * Obtain the PEAR class so it can be extended from
  */
@@ -488,7 +487,7 @@ class DB
      *
      * Example 1.
      * <code>
-     * require_once 'DB.php';
+     * require_once LIBS.'DB.php';
      *
      * $dsn = 'pgsql://user:password@host/database';
      * $options = array(
@@ -1486,5 +1485,3 @@ class DB_row
  * c-basic-offset: 4
  * End:
  */
-
-?>

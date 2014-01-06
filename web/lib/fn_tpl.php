@@ -1,5 +1,24 @@
 <?php
 
+/**
+ * This file is part of playSMS.
+ *
+ * playSMS is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * playSMS is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with playSMS.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+defined('_SECURE_') or die('Forbidden');
+
 function _tpl_set_string($content, $key, $val) {
 	$content = str_replace('{'.$key.'}', $val, $content);
 	return $content;
@@ -58,7 +77,10 @@ function _tpl_apply($fn, $tpl) {
 
 function tpl_apply($tpl) {
 	if (is_array($tpl) && $tpl['name']) {
-		$tpl_name = q_sanitize($tpl['name']);
+		// inject anti-CSRF hidden field
+		$tpl['var']['CSRF_FORM'] = _CSRF_FORM_;
+		
+		$tpl_name = core_query_sanitize($tpl['name']);
 
 		// check from active plugin
 		$inc = explode('_', _INC_);
@@ -71,7 +93,7 @@ function tpl_apply($tpl) {
 		}
 
 		// check from active template
-		$themes = themes_get();
+		$themes = core_themes_get();
 		$fn = _APPS_PATH_THEMES_.'/'.$themes.'/templates/'.$tpl_name.'.html';
 		if (file_exists($fn)) {
 			$content = _tpl_apply($fn, $tpl);
@@ -87,5 +109,3 @@ function tpl_apply($tpl) {
 
 	return $content;
 }
-
-?>

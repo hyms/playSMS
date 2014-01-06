@@ -1,10 +1,10 @@
 <?php
 defined('_SECURE_') or die('Forbidden');
-if (!isadmin()) { forcenoaccess(); };
+if (!auth_isadmin()) { auth_block(); };
 
 include $apps_path['plug'] . "/gateway/kannel/config.php";
 
-$gw = gateway_get();
+$gw = core_gateway_get();
 
 if ($gw == $kannel_param['name']) {
 	$status_active = "<span class=status_active />";
@@ -50,6 +50,7 @@ switch ($op) {
 		$content .= "
 			<h2>" . _('Manage kannel') . "</h2>
 			<form action=index.php?app=menu&inc=gateway_kannel&op=manage_save method=post>
+			"._CSRF_FORM_."
 			<table class=playsms-table cellpadding=1 cellspacing=2 border=0>
 				<tbody>
 				<tr>
@@ -95,10 +96,14 @@ switch ($op) {
 					<td>" . _('Kannel admin port') . "</td><td><input type=text size=30 maxlength=250 name=up_admin_port value=\"" . $kannel_param['admin_port'] . "\"> "._hint(_('HTTP Kannel admin port'))."</td>
 				</tr>
 				<tr>
-					<td>" . _('Kannel configuration file') . "<br />".$core_config['plugin']['kannel']['kannelconf']."</td><td><textarea name='up_kannelconf' style='height: 20em; width: 100%'>".$up_kannelconf."</textarea></td>
+					<td>" . _('Kannel configuration file') . "</td>
+					<td><input type=text size=30 value='".$core_config['plugin']['kannel']['kannelconf']."' disabled> "._hint(_('Kannel configuration file must be writable'))."</td>
+				<tr>
+					<td>"._('Kannel configuration')."</td>
+					<td><textarea name='up_kannelconf' style='height: 20em; width: 100%'>".$up_kannelconf."</textarea></td>
 				</tr>
 				<tr>
-					<td>" . _('Kannel status') . "</td><td><textarea rows='20' style='height: 20em; width: 100%'>".$kannel_status."</textarea></td>
+					<td>" . _('Kannel status') . "</td><td><textarea rows='20' style='height: 20em; width: 100%' disabled>".$kannel_status."</textarea></td>
 				</tr>
 				<tr>
 					<td>&nbsp;</td>
@@ -109,6 +114,7 @@ switch ($op) {
 			</table>
 			<p><input type=submit class=button value=\"" . _('Save') . "\">
 			</form>";
+		$content .= _back('index.php?app=menu&inc=tools_gatewaymanager&op=gatewaymanager_list');
 		echo $content;
 		break;
 	case "manage_save":
@@ -120,7 +126,7 @@ switch ($op) {
 		$up_sendsms_host = $_POST['up_sendsms_host'];
 		$up_sendsms_port = $_POST['up_sendsms_port'];
 		$up_playsms_web = ( $_POST['up_playsms_web'] ? $_POST['up_playsms_web'] : $http_path['base'] );
-		$up_additional_param = ( $_POST['up_additional_param'] ? $_POST['up_additional_param'] : "smsc=default" );
+		$up_additional_param = $_POST['up_additional_param'];
 
 		$up_kannelconf = $_POST['up_kannelconf'];
 		$up_kannelconf = stripslashes($up_kannelconf);

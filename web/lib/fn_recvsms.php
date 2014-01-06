@@ -1,4 +1,22 @@
 <?php
+
+/**
+ * This file is part of playSMS.
+ *
+ * playSMS is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * playSMS is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with playSMS.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 defined('_SECURE_') or die('Forbidden');
 
 function recvsms($sms_datetime,$sms_sender,$message,$sms_receiver="") {
@@ -61,7 +79,7 @@ function checkavailablekeyword($keyword) {
 		for ($c=0;$c<count($core_config['featurelist']);$c++) {
 			// checkavailablekeyword() on hooks will return TRUE as well if keyword is available
 			// so we're looking for FALSE value
-			if (x_hook($core_config['featurelist'][$c],'checkavailablekeyword',array($keyword)) === FALSE) {
+			if (core_hook($core_config['featurelist'][$c],'checkavailablekeyword',array($keyword)) === FALSE) {
 				$ok = false;
 				break;
 			}
@@ -70,13 +88,13 @@ function checkavailablekeyword($keyword) {
 	return $ok;
 }
 
-function interceptincomingsms($sms_datetime,$sms_sender,$message,$sms_receiver="") {
+function recvsms_intercept($sms_datetime,$sms_sender,$message,$sms_receiver="") {
 	global $core_config;
 	$ret = array();
 	$ret_final = array();
 	// feature list
 	for ($c=0;$c<count($core_config['featurelist']);$c++) {
-		$ret = x_hook($core_config['featurelist'][$c],'interceptincomingsms',array($sms_datetime,$sms_sender,$message,$sms_receiver));
+		$ret = core_hook($core_config['featurelist'][$c],'recvsms_intercept',array($sms_datetime,$sms_sender,$message,$sms_receiver));
 		if ($ret['modified']) {
 			$sms_datetime = ( $ret['param']['sms_datetime'] ? $ret['param']['sms_datetime'] : $sms_datetime );
 			$sms_sender = ( $ret['param']['sms_sender'] ? $ret['param']['sms_sender'] : $sms_sender );
@@ -94,7 +112,7 @@ function interceptincomingsms($sms_datetime,$sms_sender,$message,$sms_receiver="
 	}
 	// tools list
 	for ($c=0;$c<count($core_config['toolslist']);$c++) {
-		$ret = x_hook($core_config['toolslist'][$c],'interceptincomingsms',array($sms_datetime,$sms_sender,$message,$sms_receiver));
+		$ret = core_hook($core_config['toolslist'][$c],'recvsms_intercept',array($sms_datetime,$sms_sender,$message,$sms_receiver));
 		if ($ret['modified']) {
 			$sms_datetime = ( $ret['param']['sms_datetime'] ? $ret['param']['sms_datetime'] : $sms_datetime );
 			$sms_sender = ( $ret['param']['sms_sender'] ? $ret['param']['sms_sender'] : $sms_sender );
@@ -116,19 +134,22 @@ function interceptincomingsms($sms_datetime,$sms_sender,$message,$sms_receiver="
 function setsmsincomingaction($sms_datetime,$sms_sender,$message,$sms_receiver="") {
 	global $core_config;
 
-	$gw = gateway_get();
+	$gw = core_gateway_get();
 
 	// make sure sms_datetime is in supported format and in GMT+0
 	$sms_datetime = core_adjust_datetime($sms_datetime);
 
 	// incoming sms will be handled by plugin/tools/* first
-	$ret_intercept = interceptincomingsms($sms_datetime,$sms_sender,$message,$sms_receiver);
+	$ret_intercept = recvsms_intercept($sms_datetime,$sms_sender,$message,$sms_receiver);
 	if ($ret_intercept['modified']) {
 		$sms_datetime = ( $ret_intercept['param']['sms_datetime'] ? $ret_intercept['param']['sms_datetime'] : $sms_datetime );
 		$sms_sender = ( $ret_intercept['param']['sms_sender'] ? $ret_intercept['param']['sms_sender'] : $sms_sender );
 		$message = ( $ret_intercept['param']['message'] ? $ret_intercept['param']['message'] : $message );
 		$sms_receiver = ( $ret_intercept['param']['sms_receiver'] ? $ret_intercept['param']['sms_receiver'] : $sms_receiver );
 	}
+
+	// log it
+	logger_print("dt:".$sms_datetime." sender:".$sms_sender." m:".$message." receiver:".$sms_receiver, 3, "setsmsincomingaction");
 
 	// if hooked function returns cancel=true then stop the processing incoming sms, return false
 	if ($ret_intercept['cancel']) {
@@ -148,8 +169,8 @@ function setsmsincomingaction($sms_datetime,$sms_sender,$message,$sms_receiver="
 	}
 	switch ($target_keyword) {
 		case "BC":
-			$c_uid = mobile2uid($sms_sender);
-			$c_username = uid2username($c_uid);
+			$c_uid = user_mobile2uid($sms_sender);
+			$c_username = user_uid2username($c_uid);
 			$c_feature = 'core';
 			$array_target_group = explode(" ",$message);
 			$target_group = strtoupper(trim($array_target_group[0]));
@@ -165,7 +186,7 @@ function setsmsincomingaction($sms_datetime,$sms_sender,$message,$sms_receiver="
 		default:
 			for ($c=0;$c<count($core_config['featurelist']);$c++) {
 				$c_feature = $core_config['featurelist'][$c];
-				$ret = x_hook($c_feature,'setsmsincomingaction',array($sms_datetime,$sms_sender,$target_keyword,$message,$sms_receiver,$raw_message));
+				$ret = core_hook($c_feature,'setsmsincomingaction',array($sms_datetime,$sms_sender,$target_keyword,$message,$sms_receiver,$raw_message));
 				if ($ok = $ret['status']) {
 					$c_uid = $ret['uid'];
 					logger_print("feature:".$c_feature." datetime:".$sms_datetime." sender:".$sms_sender." receiver:".$sms_receiver." keyword:".$target_keyword." message:".$message." raw:".$raw_message, 3, "setsmsincomingaction");
@@ -178,7 +199,7 @@ function setsmsincomingaction($sms_datetime,$sms_sender,$message,$sms_receiver="
 		$c_feature = '';
 		$target_keyword = '';
 		$message = $raw_message;
-		// from interceptincomingsms(), force status as 'handled'
+		// from recvsms_intercept(), force status as 'handled'
 		if ($ret_intercept['hooked']) {
 			$c_status = 1;
 			if ($ret_intercept['uid']) {
@@ -203,7 +224,7 @@ function setsmsincomingaction($sms_datetime,$sms_sender,$message,$sms_receiver="
 	return $ok;
 }
 
-function interceptsmstoinbox($sms_datetime,$sms_sender,$target_user,$message,$sms_receiver="") {
+function recvsms_inbox_add_intercept($sms_datetime,$sms_sender,$target_user,$message,$sms_receiver="") {
 	global $core_config;
 	$ret = array();
 	$ret_final = array();
@@ -222,7 +243,7 @@ function interceptsmstoinbox($sms_datetime,$sms_sender,$target_user,$message,$sm
 			$message = ( $ret['param']['message'] ? $ret['param']['message'] : $message );
 			$sms_receiver = ( $ret['param']['sms_receiver'] ? $ret['param']['sms_receiver'] : $sms_receiver );
 		}
-		$ret = x_hook($core_config['featurelist'][$c],'interceptsmstoinbox',array($sms_datetime,$sms_sender,$target_user,$message,$sms_receiver));
+		$ret = core_hook($core_config['featurelist'][$c],'recvsms_inbox_add_intercept',array($sms_datetime,$sms_sender,$target_user,$message,$sms_receiver));
 	}
 	// tools list
 	for ($c=0;$c<count($core_config['toolslist']);$c++) {
@@ -239,16 +260,16 @@ function interceptsmstoinbox($sms_datetime,$sms_sender,$target_user,$message,$sm
 			$message = ( $ret['param']['message'] ? $ret['param']['message'] : $message );
 			$sms_receiver = ( $ret['param']['sms_receiver'] ? $ret['param']['sms_receiver'] : $sms_receiver );
 		}
-		$ret = x_hook($core_config['toolslist'][$c],'interceptsmstoinbox',array($sms_datetime,$sms_sender,$target_user,$message,$sms_receiver));
+		$ret = core_hook($core_config['toolslist'][$c],'recvsms_inbox_add_intercept',array($sms_datetime,$sms_sender,$target_user,$message,$sms_receiver));
 	}
 	return $ret_final;
 }
 
-function insertsmstoinbox($sms_datetime,$sms_sender,$target_user,$message,$sms_receiver="") {
+function recvsms_inbox_add($sms_datetime,$sms_sender,$target_user,$message,$sms_receiver="") {
 	global $core_config,$web_title,$email_service,$email_footer;
 
 	// sms to inbox will be handled by plugin/tools/* first
-	$ret_intercept = interceptsmstoinbox($sms_datetime,$sms_sender,$target_user,$message,$sms_receiver);
+	$ret_intercept = recvsms_inbox_add_intercept($sms_datetime,$sms_sender,$target_user,$message,$sms_receiver);
 	if ($ret_intercept['param_modified']) {
 		$sms_datetime = ( $ret_intercept['param']['sms_datetime'] ? $ret_intercept['param']['sms_datetime'] : $sms_datetime );
 		$sms_sender = ( $ret_intercept['param']['sms_sender'] ? $ret_intercept['param']['sms_sender'] : $sms_sender );
@@ -272,9 +293,9 @@ function insertsmstoinbox($sms_datetime,$sms_sender,$target_user,$message,$sms_r
 					(in_sender,in_receiver,in_uid,in_msg,in_datetime) 
 					VALUES ('$sms_sender','$sms_receiver','$uid','$message','$sms_datetime')
 				";
-				logger_print("saving sender:".$sms_sender." receiver:".$sms_receiver." target:".$target_user, 2, "insertsmstoinbox");
+				logger_print("saving sender:".$sms_sender." receiver:".$sms_receiver." target:".$target_user, 2, "recvsms_inbox_add");
 				if ($cek_ok = @dba_insert_id($db_query)) {
-					logger_print("saved sender:".$sms_sender." receiver:".$sms_receiver." target:".$target_user, 2, "insertsmstoinbox");
+					logger_print("saved sender:".$sms_sender." receiver:".$sms_receiver." target:".$target_user, 2, "recvsms_inbox_add");
 				}
 			}
 			// forward to email
@@ -282,18 +303,24 @@ function insertsmstoinbox($sms_datetime,$sms_sender,$target_user,$message,$sms_r
 				if ($email = $user['email']) {
 					// make sure sms_datetime is in supported format and in user's timezone
 					$sms_datetime = core_display_datetime($sms_datetime);
-					$subject = _('SMS from')." ".$sender;
+					$subject = _('Message from')." ".$sender;
 					$body = $web_title."\n\n";
-					$body .= _('SMS to email')."\n\n";
 					$body .= _('Received').": ".$sms_datetime."\n";
 					$body .= _('Receiver').": ".$sms_receiver."\n";
 					$body .= _('Sender').": ".$sender."\n\n";
 					$body .= _('Message').":\n".$message."\n\n";
 					$body .= $email_footer."\n\n";
 					$body = stripslashes($body);
-					logger_print("send email from:".$email_service." to:".$email." message:".$message, 3, "insertsmstoinbox");
-					sendmail($email_service,$email,$subject,$body);
-					logger_print("sent email from:".$email_service." to:".$email." message:".$message, 3, "insertsmstoinbox");
+					logger_print("send email from:".$email_service." to:".$email." message:".$message, 3, "recvsms_inbox_add");
+					$data = array(
+						'mail_from_name' => $core_config['main']['cfg_web_title'],
+						'mail_from' => $email_service,
+						'mail_to' => $email,
+						'mail_subject' => $subject,
+						'mail_body' => $body
+					);
+					sendmail($data);
+					logger_print("sent email from:".$email_service." to:".$email." message:".$message, 3, "recvsms_inbox_add");
 				}
 				$ok = true;
 			}
@@ -302,10 +329,10 @@ function insertsmstoinbox($sms_datetime,$sms_sender,$target_user,$message,$sms_r
 				if ($mobile = $user['mobile']) {
 					$unicode = core_detect_unicode($message);
 					$message = $sender.' '.$message;
-					logger_print("send to mobile:".$mobile." from:".$sms_sender." user:".$target_user." message:".$message, 3, "insertsmstoinbox");
+					logger_print("send to mobile:".$mobile." from:".$sms_sender." user:".$target_user." message:".$message, 3, "recvsms_inbox_add");
 					list($ok, $to, $smslog_id, $queue) = sendsms($target_user, $mobile, $message, 'text', $unicode);
 					if ($ok[0]==1) {
-                                                logger_print("sent to mobile:".$mobile." from:".$sms_sender." user:".$target_user, 2, "insertsmstoinbox");
+                                                logger_print("sent to mobile:".$mobile." from:".$sms_sender." user:".$target_user, 2, "recvsms_inbox_add");
 					}
 				}
 			}
@@ -315,8 +342,6 @@ function insertsmstoinbox($sms_datetime,$sms_sender,$target_user,$message,$sms_r
 }
 
 function getsmsinbox() {
-	$gw = gateway_get();
-	x_hook($gw,'getsmsinbox');
+	$gw = core_gateway_get();
+	core_hook($gw,'getsmsinbox');
 }
-
-?>

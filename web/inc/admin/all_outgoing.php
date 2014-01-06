@@ -1,6 +1,24 @@
 <?php
+
+/**
+ * This file is part of playSMS.
+ *
+ * playSMS is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * playSMS is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with playSMS.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 defined('_SECURE_') or die('Forbidden');
-if(!isadmin()){forcenoaccess();};
+if(!auth_isadmin()){auth_block();};
 
 switch ($op) {
 	case "all_outgoing":
@@ -16,27 +34,29 @@ switch ($op) {
 		$extras = array('ORDER BY' => 'smslog_id DESC', 'LIMIT' => $nav['limit'], 'OFFSET' => $nav['offset']);
 		$list = dba_search($table.' AS A', '*', $conditions, $keywords, $extras, $join);
 
-		$actions_box = "
-			<div id=actions_box>
-			<div id=actions_box_left><input type=submit name=go value=\""._('Export')."\" class=button /></div>
-			<div id=actions_box_center>".$nav['form']."</div>
-			<div id=actions_box_right><input type=submit name=go value=\""._('Delete')."\" class=button /></div>
-			</div>";
-
 		$content = "
-			<h2>"._('All outgoing SMS')."</h2>
+			<h2>"._('All outgoing messages')."</h2>
 			<p>".$search['form']."</p>
-			<form name=\"fm_outgoing\" action=\"index.php?app=menu&inc=all_outgoing&op=actions\" method=post onSubmit=\"return SureConfirm()\">
-			".$actions_box."
+			<form id=fm_all_outgoing name=fm_all_outgoing action=\"index.php?app=menu&inc=all_outgoing&op=actions\" method=POST>
+			"._CSRF_FORM_."
+			<input type=hidden name=go value=delete>
+			<div class=actions_box>
+				<div class=pull-left>
+					<a href=\"index.php?app=menu&inc=all_outgoing&op=actions&go=export\">".$core_config['icon']['export']."</a>
+				</div>
+				<div class=pull-right>
+					<a href='#' onClick=\"return SubmitConfirm('"._('Are you sure you want to delete these items ?')."', 'fm_all_outgoing');\">".$core_config['icon']['delete']."</a>
+				</div>
+			</div>
 			<div class=table-responsive>
 			<table class=playsms-table-list>
 			<thead>
 			<tr>
 				<th width=20%>"._('User')."</th>
 				<th width=15%>"._('Gateway')."</th>
-				<th width=25%>"._('To')."</th>
-				<th width=35%>"._('Message')."</th>
-				<th width=5% class=\"sorttable_nosort\"><input type=checkbox onclick=CheckUncheckAll(document.fm_outgoing)></td>
+				<th width=20%>"._('To')."</th>
+				<th width=40%>"._('Message')."</th>
+				<th width=5% class=\"sorttable_nosort\"><input type=checkbox onclick=CheckUncheckAll(document.fm_all_outgoing)></th>
 			</tr>
 			</thead>
 			<tbody>";
@@ -84,8 +104,8 @@ switch ($op) {
 			$msg = $list[$j]['p_msg'];
 			$p_msg = core_display_text($msg);
 			if ($msg && $p_dst) {
-				$resend = _a('index.php?app=menu&inc=send_sms&op=sendsmstopv&do=reply&message='.urlencode($msg).'&to='.urlencode($p_dst), $core_config['icon']['resend']);
-				$forward = _a('index.php?app=menu&inc=send_sms&op=sendsmstopv&do=forward&message='.urlencode($msg), $core_config['icon']['forward']);
+				$resend = _a('index.php?app=menu&inc=send_sms&op=send_sms&do=reply&message='.urlencode($msg).'&to='.urlencode($p_dst), $core_config['icon']['resend']);
+				$forward = _a('index.php?app=menu&inc=send_sms&op=send_sms&do=forward&message='.urlencode($msg), $core_config['icon']['forward']);
 			}
 			$c_message = "<div id=\"all_outgoing_msg\">".$p_msg."</div><div id=\"msg_label\">".$p_datetime."&nbsp;".$p_status."</div><div id=\"msg_option\">".$resend."&nbsp".$forward."</div>";
 			$i--;
@@ -106,7 +126,7 @@ switch ($op) {
 			</tbody>
 			</table>
 			</div>
-			".$actions_box."
+			<div class=pull-right>".$nav['form']."</div>
 			</form>";
 
 		if ($err = $_SESSION['error_string']) {
@@ -119,7 +139,7 @@ switch ($op) {
 		$search = themes_search_session();
 		$go = $_REQUEST['go'];
 		switch ($go) {
-			case _('Export'):
+			case 'export':
 				$conditions = array('flag_deleted' => 0);
 				$table = _DB_PREF_.'_tblSMSOutgoing';
 				$join = 'INNER JOIN '._DB_PREF_.'_tblUser AS B ON A.uid=B.uid';
@@ -135,11 +155,11 @@ switch ($op) {
 						$list[$i]['p_msg'].$list[$i]['p_footer'],
 						$list[$i]['p_status']);
 				}
-				$content = csv_format($data);
+				$content = core_csv_format($data);
 				$fn = 'all_outgoing-'.$core_config['datetime']['now_stamp'].'.csv';
-				download($content, $fn, 'text/csv');
+				core_download($content, $fn, 'text/csv');
 				break;
-			case _('Delete'):
+			case 'delete':
 				for ($i=0;$i<$nav['limit'];$i++) {
 					$checkid = $_POST['checkid'.$i];
 					$itemid = $_POST['itemid'.$i];
@@ -149,10 +169,8 @@ switch ($op) {
 					}
 				}
 				$ref = $nav['url'].'&search_keyword='.$search['keyword'].'&page='.$nav['page'].'&nav='.$nav['nav'];
-				$_SESSION['error_string'] = _('Selected outgoing SMS has been deleted');
+				$_SESSION['error_string'] = _('Selected outgoing message has been deleted');
 				header("Location: ".$ref);
 		}
 		break;
 }
-
-?>

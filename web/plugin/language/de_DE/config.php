@@ -1,3 +1,2 @@
 <?php
-$plugin['language']['de_DE']['title'] = 'Deutsch (Deutschland)';
-?>
+$core_config['plugin']['de_DE']['title'] = 'Deutsch (Deutschland)';

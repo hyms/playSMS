@@ -1,73 +1,45 @@
 <?php
+
+/**
+ * This file is part of playSMS.
+ *
+ * playSMS is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * playSMS is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with playSMS.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 defined('_SECURE_') or die('Forbidden');
 
 function rate_setusercredit($uid, $remaining=0) {
-	global $core_config;
-	$ok = false;
-	if ($uid) {
-		for ($c=0;$c<count($core_config['toolslist']);$c++) {
-			if (x_hook($core_config['toolslist'][$c],'rate_setusercredit',array($uid,$remaining))) {
-				$ok = true;
-				break;
-			}
-		}
-	}
-	return $ok;
+	$ret = core_call_hook();
+	return $ret;
 }
 
 function rate_getusercredit($username) {
-	global $core_config;
-	if ($username) {
-		for ($c=0;$c<count($core_config['toolslist']);$c++) {
-			if ($credit = x_hook($core_config['toolslist'][$c],'rate_getusercredit',array($username))) {
-				break;
-			}
-		}
-	}
-	$credit = ( $credit ? $credit : 0 );
-	return $credit;
+	$ret = core_call_hook();
+	return $ret;
 }
 
 function rate_cansend($username, $sms_to) {
-	global $core_config;
-	$ok = false;
-	if ($username) {
-		for ($c=0;$c<count($core_config['toolslist']);$c++) {
-			if (x_hook($core_config['toolslist'][$c],'rate_cansend',array($username,$sms_to))) {
-				$ok = true;
-				break;
-			}
-		}
-	}
-	return $ok;
+	$ret = core_call_hook();
+	return $ret;
 }
 
 function rate_deduct($smslog_id) {
-	global $core_config;
-	$ok = false;
-	if ($smslog_id) {
-		for ($c=0;$c<count($core_config['toolslist']);$c++) {
-			if (x_hook($core_config['toolslist'][$c],'rate_deduct',array($smslog_id))) {
-				$ok = true;
-				break;
-			}
-		}
-	}
-	return $ok;
+	$ret = core_call_hook();
+	return $ret;
 }
 
 function rate_refund($smslog_id) {
-	global $core_config;
-	$ok = false;
-	if ($smslog_id) {
-		for ($c=0;$c<count($core_config['toolslist']);$c++) {
-			if (x_hook($core_config['toolslist'][$c],'rate_refund',array($smslog_id))) {
-				$ok = true;
-				break;
-			}
-		}
-	}
-	return $ok;
+	$ret = core_call_hook();
+	return $ret;
 }
-
-?>

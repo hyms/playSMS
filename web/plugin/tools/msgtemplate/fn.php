@@ -23,12 +23,12 @@ defined('_SECURE_') or die('Forbidden');
  * @return
  *   array $ret
  */
-function msgtemplate_hook_interceptsendsms($sms_sender,$sms_footer,$sms_to,$sms_msg,$uid,$gpid,$sms_type,$unicode) {
+function msgtemplate_hook_sendsms_intercept($sms_sender,$sms_footer,$sms_to,$sms_msg,$uid,$gpid,$sms_type,$unicode) {
 	// parameters modified
 	$ret['modified'] = true;
 
 	// the modification to $sms_msg
-	$c_username = uid2username($uid);
+	$c_username = user_uid2username($uid);
 	$text = $sms_msg;
 	$text = str_replace('#NAME#', phonebook_number2name($sms_to, $c_username), $text);
 	$text = str_replace('#NUM#', $sms_to, $text);

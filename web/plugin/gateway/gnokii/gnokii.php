@@ -1,10 +1,10 @@
 <?php
 defined('_SECURE_') or die('Forbidden');
-if(!isadmin()){forcenoaccess();};
+if(!auth_isadmin()){auth_block();};
 
 include $apps_path['plug']."/gateway/gnokii/config.php";
 
-$gw = gateway_get();
+$gw = core_gateway_get();
 
 if ($gw == $gnokii_param['name']) {
 	$status_active = "<span class=status_active />";
@@ -20,6 +20,7 @@ switch ($op) {
 		$content .= "
 			<h2>"._('Manage gnokii')."</h2>
 			<form action=index.php?app=menu&inc=gateway_gnokii&op=manage_save method=post>
+			"._CSRF_FORM_."
 			<table class=playsms-table>
 				<tbody>
 				<tr>
@@ -32,6 +33,7 @@ switch ($op) {
 			</table>
 			<p><input type=submit class=button value=\""._('Save')."\">
 			</form>";
+		$content .= _back('index.php?app=menu&inc=tools_gatewaymanager&op=gatewaymanager_list');
 		echo $content;
 		break;
 	case "manage_save":

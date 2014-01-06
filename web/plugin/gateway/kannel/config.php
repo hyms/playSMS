@@ -28,20 +28,16 @@ if ($db_row = dba_fetch_array($db_result)) {
 // default path for kannel.conf, please edit the path if different from default
 $kannel_param['kannelconf'] = '/etc/kannel/kannel.conf';
 
-if (! $kannel_param['additional_param']) {
-	$kannel_param['additional_param'] = "smsc=default";
-}
-
 // save plugin's parameters or options in $core_config
 $core_config['plugin']['kannel'] = $kannel_param;
 
 //$gateway_number = $kannel_param['global_sender'];
 
 // insert to left menu array
-if (isadmin()) {
-	$menutab_gateway = $core_config['menutab']['gateway'];
-	$menu_config[$menutab_gateway][] = array("index.php?app=menu&inc=gateway_kannel&op=manage", _('Manage kannel'));
-}
+//if (isadmin()) {
+//	$menutab_gateway = $core_config['menutab']['gateway'];
+//	$menu_config[$menutab_gateway][] = array("index.php?app=menu&inc=gateway_kannel&op=manage", _('Manage kannel'));
+//}
 
 // Test for DLR checkbox
 /* DLR Kannel value

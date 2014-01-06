@@ -1,4 +1,22 @@
 <?php
+
+/**
+ * This file is part of playSMS.
+ *
+ * playSMS is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * playSMS is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with playSMS.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 defined('_SECURE_') or die('Forbidden');
 
 /**
@@ -12,8 +30,8 @@ defined('_SECURE_') or die('Forbidden');
 function webservices_validate($h,$u) {
 	global $core_config;
 	$ret = false;
-	if ($c_uid = validatetoken($h)) {
-		$c_u = uid2username($c_uid);
+	if ($c_uid = auth_validate_token($h)) {
+		$c_u = user_uid2username($c_uid);
 		if ($core_config['webservices_username']) {
 			if ($c_u && $u && ($c_u == $u)) {
 				$ret = $c_u;
@@ -25,12 +43,12 @@ function webservices_validate($h,$u) {
 	return $ret;
 }
 
-function webservices_pv($c_username,$to,$msg,$type='text',$unicode=0,$nofooter=FALSE,$footer='',$from='') {
+function webservices_pv($c_username,$to,$msg,$type='text',$unicode=0,$nofooter=FALSE,$footer='',$from='',$schedule='') {
 	$ret = '';
 	$arr_to = explode(',', $to);
 	if ($c_username && $arr_to[1] && $msg) {
 		// multiple destination
-		list($ok,$to,$smslog_id,$queue_code) = sendsms($c_username,$arr_to,$msg,$type,$unicode,$nofooter,$footer,$from);
+		list($ok,$to,$smslog_id,$queue_code) = sendsms($c_username,$arr_to,$msg,$type,$unicode,$nofooter,$footer,$from,$schedule);
 		for ($i=0;$i<count($to);$i++) {
 			if (($ok[$i]==1 || $ok[$i]==true) && $to[$i] && ($queue_code[$i] || $smslog_id[$i])) {
 				$ret .= "OK ".$smslog_id[$i].",".$queue_code[$i].",".$to[$i]."\n";
@@ -58,7 +76,7 @@ function webservices_pv($c_username,$to,$msg,$type='text',$unicode=0,$nofooter=F
 		$json['multi'] = true;
 	} elseif ($c_username && $to && $msg) {
 		// single destination
-		list($ok,$to,$smslog_id,$queue_code) = sendsms($c_username,$to,$msg,$type,$unicode,$nofooter,$footer,$from);
+		list($ok,$to,$smslog_id,$queue_code) = sendsms($c_username,$to,$msg,$type,$unicode,$nofooter,$footer,$from,$schedule);
 		if ($ok[0]==1) {
 			$ret = "OK ".$smslog_id[0].",".$queue_code[0].",".$to[0];
 			$json['status'] = 'OK';
@@ -84,11 +102,11 @@ function webservices_pv($c_username,$to,$msg,$type='text',$unicode=0,$nofooter=F
 	return array($ret, $json);
 }
 
-function webservices_bc($c_username,$c_gcode,$msg,$type='text',$unicode=0,$nofooter=FALSE,$footer='',$from='') {
-	if (($c_uid = username2uid($c_username)) && $c_gcode && $msg) {
+function webservices_bc($c_username,$c_gcode,$msg,$type='text',$unicode=0,$nofooter=FALSE,$footer='',$from='',$schedule) {
+	if (($c_uid = user_username2uid($c_username)) && $c_gcode && $msg) {
 		$c_gpid = phonebook_groupcode2id($c_uid,$c_gcode);
 		// sendsms_bc($c_username,$c_gpid,$message,$sms_type='text',$unicode=0)
-		list($ok,$to,$smslog_id,$queue_code) = sendsms_bc($c_username,$c_gpid,$msg,$type,$unicode,$nofooter,$footer,$from);
+		list($ok,$to,$smslog_id,$queue_code) = sendsms_bc($c_username,$c_gpid,$msg,$type,$unicode,$nofooter,$footer,$from,$schedule);
 		if ($ok[0]) {
 			$ret = "OK ".$queue_code[0];
 			$json['status'] = 'OK';
@@ -111,7 +129,7 @@ function webservices_ds($c_username,$queue_code='',$src='',$dst='',$datetime='',
 	$ret = "ERR 101";
 	$json['status'] = 'ERR';
 	$json['error'] = '101';
-	if ($uid = username2uid($c_username)) {
+	if ($uid = user_username2uid($c_username)) {
 		$conditions['uid'] = $uid;
 	}
 	$conditions['flag_deleted'] = 0;
@@ -198,8 +216,8 @@ function webservices_in($c_username,$src='',$dst='',$kwd='',$datetime='',$c=100,
 	$ret = "ERR 101";
 	$json['status'] = 'ERR';
 	$json['error'] = '101';
-	$conditions['flag_deleted'] = 0;
-	if ($uid = username2uid($c_username)) {
+	$conditions = array('flag_deleted' => 0, 'in_status' => 1);
+	if ($uid = user_username2uid($c_username)) {
 		$conditions['in_uid'] = $uid;
 	}
 	if ($src) {
@@ -222,6 +240,7 @@ function webservices_in($c_username,$src='',$dst='',$kwd='',$datetime='',$c=100,
 	if ($last) {
 		$extras['AND in_id'] = '>'.$last;
 	}
+	$extras['AND in_keyword'] = '!= ""';
 	$extras['ORDER BY'] = 'in_datetime DESC';
 	if ($c) {
 		$extras['LIMIT'] = $c;
@@ -261,12 +280,75 @@ function webservices_in($c_username,$src='',$dst='',$kwd='',$datetime='',$c=100,
 	return array($ret, $json);
 }
 
+function webservices_sx($c_username,$src='',$dst='',$datetime='',$c=100,$last=false) {
+	$ret = "ERR 101";
+	$json['status'] = 'ERR';
+	$json['error'] = '101';
+	$u = user_getdatabyusername($c_username);
+	if ($u['status'] != 2) {
+		return array($ret, $json);
+	}
+	$uid = $u['uid'];
+	$conditions = array('flag_deleted' => 0, 'in_status' => 0);
+	if ($src) {
+		if ($src[0]=='0') {
+			$c_src = substr($src, 1);
+		} else {
+			$c_src = substr($src, 3);
+		}
+		$keywords['in_sender'] = '%'.$c_src;
+	}
+	if ($dst) {
+		$conditions['in_receiver'] = $dst;
+	}
+	if ($datetime) {
+		$keywords['in_datetime'] = '%'.$datetime.'%';
+	}
+	if ($last) {
+		$extras['AND in_id'] = '>'.$last;
+	}
+	$extras['ORDER BY'] = 'in_datetime DESC';
+	if ($c) {
+		$extras['LIMIT'] = $c;
+	} else {
+		$extras['LIMIT'] = 100;
+	}
+	if ($uid) {
+		$content = '';
+		$j = 0;
+		$list = dba_search(_DB_PREF_.'_tblSMSIncoming', '*', $conditions, $keywords, $extras);
+		foreach ($list as $db_row) {
+			$id = $db_row['in_id'];
+			$src = $db_row['in_sender'];
+			$dst = $db_row['in_receiver'];
+			$message = str_replace('"', "'", $db_row['in_message']);
+			$datetime = $db_row['in_datetime'];
+			$status = $db_row['in_status'];
+			$content .= "\"$id\";\"$src\";\"$dst\";\"$message\";\"$datetime\"\n";
+			$json['data'][$j]['id'] = $id;
+			$json['data'][$j]['src'] = $src;
+			$json['data'][$j]['dst'] = $dst;
+			$json['data'][$j]['msg'] = $message;
+			$json['data'][$j]['dt'] = $datetime;
+			$j++;
+		}
+		// if DS available by checking content
+		if ($content) {
+			$ret = $content;
+			unset($json['status']);
+			unset($json['error']);
+			$json['multi'] = true;
+		}
+	}
+	return array($ret, $json);
+}
+
 function webservices_ix($c_username,$src='',$dst='',$datetime='',$c=100,$last=false) {
 	$ret = "ERR 101";
 	$json['status'] = 'ERR';
 	$json['error'] = '101';
 	$conditions['in_hidden'] = 0;
-	if ($uid = username2uid($c_username)) {
+	if ($uid = user_username2uid($c_username)) {
 		$conditions['in_uid'] = $uid;
 	}
 	if ($src) {
@@ -371,8 +453,6 @@ function webservices_get_contact_group($c_uid, $name, $count) {
 
 function webservices_output($ta,$requests) {
 	$ta = strtolower($ta);
-	$ret = x_hook($ta,'webservices_output',array($ta,$requests));
+	$ret = core_hook($ta,'webservices_output',array($ta,$requests));
 	return $ret;
 }
-
-?>

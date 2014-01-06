@@ -1,10 +1,10 @@
 <?php
 defined('_SECURE_') or die('Forbidden');
-if(!valid()){forcenoaccess();};
+if(!auth_isvalid()){auth_block();};
 
 switch ($op) {
 	case "list":
-		$search_category = array(_('Name') => 'name', _('Code'));
+		$search_category = array(_('Name') => 'name', _('Group code') => 'code');
 		$base_url = 'index.php?app=menu&inc=tools_phonebook&route=group&op=list';
 		$search = themes_search($search_category, $base_url);
 		$conditions = array('uid' => $core_config['user']['uid']);
@@ -15,26 +15,26 @@ switch ($op) {
 		$fields = 'id, name, code';
 		$list = dba_search(_DB_PREF_.'_toolsPhonebook_group', $fields, $conditions, $keywords, $extras);
 
-		$actions_box = "
-			<div id=actions_box>
-			<div id=actions_box_left><input type=button class=button value=\""._('Add group')."\" onClick=\"javascript:window.location.href='index.php?app=menu&inc=tools_phonebook&route=group&op=add'\"></div>
-			<div id=actions_box_center>".$nav['form']."</div>
-			<div id=actions_box_right><input type=submit name=go value=\""._('Delete')."\" class=button onClick=\"return SureConfirm()\"/></div>
-			</div>";
-
 		$content = "
 			<h2>"._('Phonebook')."</h2>
 			<h3>"._('Group')."</h3>
 			<p>".$search['form']."</p>
-			<form name=\"fm_inbox\" action=\"index.php?app=menu&inc=tools_phonebook&route=group&op=actions\" method=post>
-			".$actions_box."
+			<form id=fm_phonebook_group_list name=fm_phonebook_group_list action='index.php?app=menu&inc=tools_phonebook&route=group&op=actions' method=post>
+			"._CSRF_FORM_."
+			<input type=hidden name=go value=delete>
+			<div class=actions_box>
+				<div class=pull-left>
+					<a href='index.php?app=menu&inc=tools_phonebook&route=group&op=add'>".$core_config['icon']['add']."</a>
+				</div>
+				<div class=pull-right>".$nav['form']."</div>
+			</div>
 			<div class=table-responsive>
 			<table class=playsms-table-list>
 			<thead>
 			<tr>
 				<th width=60%>"._('Name')."</th>
-				<th width=35%>"._('Code')."</th>
-				<th width=5%><input type=checkbox onclick=CheckUncheckAll(document.fm_inbox)></td>
+				<th width=35%>"._('Group code')."</th>
+				<th width=5%>"._('Action')."</th>
 			</tr>
 			</thead>
 			<tbody>";
@@ -45,14 +45,12 @@ switch ($op) {
 			$name = $list[$j]['name'];
 			$code = $list[$j]['code'];
 			$i++;
-			$c_i = "<a href=\"index.php?app=menu&inc=tools_phonebook&route=group&op=edit&gpid=".$gpid."\">".$i.".</a>";
 			$content .= "
 				<tr>
-					<td>$name</td>
+					<td><a href='index.php?app=menu&inc=tools_phonebook&route=group&op=edit&gpid=".$gpid."'>$name</a></td>
 					<td>$code</td>
 					<td>
-						<input type=hidden name=itemid".$j." value=\"".$gpid."\">
-						<input type=checkbox name=checkid".$j.">
+						<a href='index.php?app=menu&inc=tools_phonebook&route=group&op=actions&go=delete&gpid=".$gpid."' onClick=\"return SureConfirm();\">".$core_config['icon']['delete']."</a>
 					</td>
 				</tr>";
 		}
@@ -61,9 +59,8 @@ switch ($op) {
 			</tbody>
 			</table>
 			</div>
-			".$actions_box."
 			</form>
-			"._b('index.php?app=menu&inc=tools_phonebook&op=phonebook_list');
+			"._back('index.php?app=menu&inc=tools_phonebook&op=phonebook_list');
 
 		if ($err = $_SESSION['error_string']) {
 			echo "<div class=error_string>$err</div>";
@@ -76,6 +73,7 @@ switch ($op) {
 			<h3>"._('Add group')."</h3>
 			<p>
 			<form action=\"index.php?app=menu&inc=tools_phonebook&route=group&op=actions&go=add\" method=POST>
+			"._CSRF_FORM_."
 			<table class=playsms-table>
 			<tbody>
 				<tr>
@@ -84,13 +82,13 @@ switch ($op) {
 				</tr>
 				<tr>
 					<td>"._('Group code')."</td>
-					<td><input type=text name=group_code size=10> "._hint(_('Group code used by keyword')." BC ("._('broadcast SMS from single SMS').")<br />"._('please use uppercase and make it short')."")."</td>
+					<td><input type=text name=group_code size=10> "._hint(_('Group code used by keyword')." BC ("._('broadcast SMS from single SMS').") "._('please use uppercase and make it short')."")."</td>
 				</tr>
 			</tbody>
 			</table>
 			<p><input type=submit class=button value=\""._('Save')."\"> 
 			</form>
-			<p>"._b('index.php?app=menu&inc=tools_phonebook&route=group&op=list');
+			<p>"._back('index.php?app=menu&inc=tools_phonebook&route=group&op=list');
 		echo $content;
 		break;
 	case "edit":
@@ -100,6 +98,7 @@ switch ($op) {
 			<h3>"._('Edit group')."</h3>
 			<p>
 			<form action=\"index.php?app=menu&inc=tools_phonebook&route=group&op=actions&go=edit\" method=POST>
+			"._CSRF_FORM_."
 			<input type=hidden name=gpid value=\"$gpid\">
 			<table class=playsms-table>
 			<tbody>
@@ -116,7 +115,7 @@ switch ($op) {
 			<p>"._('Note').": "._('Group code used by keyword')." BC ("._('broadcast SMS from single SMS').")
 			<p><input type=submit class=button value=\""._('Save')."\"> 
 			</form>
-			<p>"._b('index.php?app=menu&inc=tools_phonebook&route=group&op=list');
+			<p>"._back('index.php?app=menu&inc=tools_phonebook&route=group&op=list');
 		if ($err = $_SESSION['error_string']) {
 			echo "<div class=error_string>$err</div>";
 		}
@@ -127,17 +126,20 @@ switch ($op) {
 		$search = themes_search_session();
 		$go = $_REQUEST['go'];
 		switch ($go) {
-			case _('Delete'):
-				for ($i=0;$i<$nav['limit'];$i++) {
-					$checkid = $_POST['checkid'.$i];
-					$itemid = $_POST['itemid'.$i];
-					if(($checkid=="on") && $itemid) {
-						dba_remove(_DB_PREF_.'_toolsPhonebook_group', array('id' => $itemid));
-						dba_remove(_DB_PREF_.'_toolsPhonebook', array('gpid' => $itemid));
+			case 'delete':
+				if ($gpid = $_REQUEST['gpid']) {
+					if (! dba_count(_DB_PREF_.'_toolsPhonebook_group_contacts', array('gpid' => $gpid))) {
+						if (dba_remove(_DB_PREF_.'_toolsPhonebook_group', array('uid' => $core_config['user']['uid'], 'id' => $gpid))) {
+							$_SESSION['error_string'] = _('Selected group has been deleted');
+						} else {
+							$_SESSION['error_string'] = _('Fail to delete group');
+						}
+
+					} else {
+						$_SESSION['error_string'] = _('Unable to delete group until the group is empty');
 					}
 				}
 				$ref = $nav['url'].'&search_keyword='.$search['keyword'].'&search_category='.$search['category'].'&page='.$nav['page'].'&nav='.$nav['nav'];
-				$_SESSION['error_string'] = _('Selected group has been deleted');
 				header("Location: ".$ref);
 				exit();
 				break;

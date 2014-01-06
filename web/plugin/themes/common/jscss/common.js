@@ -10,7 +10,7 @@ function CheckUncheckAll(the_form) {
 function PopupSendSms(ta, tg) {
 	var pv = "PV";
 	if (ta == pv) {
-		var url = "menu.php?inc=send_sms&op=sendsmstopv&dst_p_num=" + tg;
+		var url = "menu.php?inc=send_sms&op=send_sms&dst_p_num=" + tg;
 	} else {
 		var url = "menu.php?inc=send_sms&op=sendsmstogr&dst_gp_code=" + tg;
 	}
@@ -21,7 +21,7 @@ function PopupSendSms(ta, tg) {
 }
 
 function PopupReplySms(tg, mssg) {
-	var url = "menu.php?inc=send_sms&op=sendsmstopv&dst_p_num=" + tg + "&message=" + mssg;
+	var url = "menu.php?inc=send_sms&op=send_sms&dst_p_num=" + tg + "&message=" + mssg;
 
 	newwin = window.open("", "WinSendSms", "scrollbars", "resizable=yes")
 	newwin.moveTo(20, 100)
@@ -46,6 +46,15 @@ function SureConfirm() {
 	}
 }
 
+function SubmitConfirm(text, form_name) {
+	if (confirm(text)) {
+		document.getElementById(form_name).submit();
+		return true;
+	} else {
+		return false;
+	}
+}
+
 function SetSmsTemplate() {
 	sellength = document.forms.fm_sendsms.smstemplate.length;
 	for (i = 0; i < sellength; i++) {
@@ -63,6 +72,8 @@ function SmsTextCounter() {
 	var maxChar_unicode = document.forms.fm_sendsms.maxchar_unicode.value;
 	var maxlimit = document.fm_sendsms.hiddcount.value;
 	var maxlimit_unicode = document.fm_sendsms.hiddcount_unicode.value;
+	var chars = document.fm_sendsms.chars.value;
+	var SMS = document.fm_sendsms.SMS.value;
 	var limit;
 	var devider;
 	var msgcount;
@@ -71,7 +82,7 @@ function SmsTextCounter() {
 		limit = maxlimit_unicode;
 		devider = 70;
 		if (msg.value.length > 70) {
-			devider = 63;
+			devider = 67;
 		}
 	} else {
 		limit = maxlimit;
@@ -84,7 +95,7 @@ function SmsTextCounter() {
 		msg.value = msg.value.substring(0, limit);
 	}
 	msgcount = Math.ceil((msg.value.length + footerlen) / devider);
-	result = msg.value.length + ' char : ' + msgcount + ' SMS';
+	result = msg.value.length + footerlen + ' ' + chars + ' : ' + msgcount + ' ' + SMS;
 	return result;
 }
 
@@ -93,12 +104,18 @@ function containsNonLatinCodepoints(s) {
 }
 
 function SmsSetCounter() {
+	var msg = document.fm_sendsms.message;
+	var ftr = document.fm_sendsms.msg_footer;
+	var msg_unicode = document.fm_sendsms.msg_unicode;
+	var detect = containsNonLatinCodepoints(msg.value + ftr.value);
+	msg_unicode.checked = detect;
+	if (ftr.value.length > 0) {
+		document.forms.fm_sendsms.footerlen.value = ftr.value.length + 1;
+	} else {
+		document.forms.fm_sendsms.footerlen.value = 0;
+	}
 	var ilen = SmsTextCounter();
 	document.fm_sendsms.txtcount.value = ilen;
-	var msg = document.fm_sendsms.message;
-	var msg_unicode = document.fm_sendsms.msg_unicode;
-	var detect = containsNonLatinCodepoints(msg.value);
-	msg_unicode.checked = detect;
 }
 
 /* ############################
